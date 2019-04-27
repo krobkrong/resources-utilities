@@ -7,7 +7,6 @@
 A command line and library to generate typescript definition file from CSS, SASS, SCSS or SVG file.
 
 ## Install
----
 
 Using NPM
 ```bash
@@ -20,7 +19,6 @@ yarn add @krobkrong/resources-utilities -D
 ```
 
 ## Command Line Usage
----
 
 Resource utilities provide a command line that accept the last argument with glob pattern input syntax. For example, the command line below will generate a typescript definition file from a CSS file in the current work directory:
 
@@ -40,7 +38,6 @@ For more information run `resutil --help`
 
 
 ## APIs Usage
----
 
 Resource utilities provided APIs for both CSS and SVG. The below code utilize `StyleUtils` namespace to parse raw css file:
 
