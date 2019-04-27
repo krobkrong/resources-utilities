@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: krobkrong/node-yarn:0.0.1
+      - image: krobkrong/node-yarn:latest
     
     working_directory: ~/repo
 
