@@ -59,8 +59,7 @@
     "@types/node-sass": "^4.11.0",
     "@types/yargs": "^13.0.0",
     "loader-utils": "^1.2.3",
-    "node-sass": "^4.11.0",
-    "svgo": "^1.2.1",
+    "node-sass": "^4.12.0",
     "tar": "^4.4.8",
     "yargs": "^13.2.2"
   }
