@@ -1,0 +1,50 @@
+<!--
+name: multiple elements with mask
+input:
+   additionals:
+      testOptions:
+         - name: "normal svg parsing options"
+           options:
+              convension: camel
+output:
+   byOptions:
+      - module:
+          mymask: "myMask"
+        meta:
+          name: svg
+          elementType: svg
+          width: "100"
+          height: "600"
+          childs:
+            - name: defs
+              elementType: defs
+              childs:
+                - name: mask
+                  elementType: mask
+                  id: myMask
+                  childs:
+                    - name: rect
+                      elementType: rect
+                      width: "100"
+                      height: "100"
+                    - name: path
+                      elementType: path
+                      d: M10,35 A20,20,0,0,1,50,35 A20,20,0,0,1,90,35 Q90,65,50,95 Q10,65,10,35 Z
+                      fill: black
+
+-->
+
+<svg width="100" height="600">
+
+  <defs>
+    <mask id="myMask">
+      <!-- Everything under a white pixel will be visible -->
+      <rect width="100" height="100" />
+
+      <!-- Everything under a black pixel will be invisible -->
+      <path d="M10,35 A20,20,0,0,1,50,35 A20,20,0,0,1,90,35 Q90,65,50,95 Q10,65,10,35 Z" fill="black" />
+    </mask>
+  </defs>
+
+</svg>
+   

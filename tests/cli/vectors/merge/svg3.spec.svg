@@ -1,0 +1,21 @@
+<svg width="100" height="600">
+
+   <g id="any-group">
+      <rect width="50" height="50" />
+      <text fill="red" />
+   </g>
+
+  <defs>
+    <mask id="any-mask">
+      <rect width="100" height="100" />
+    </mask>
+    <clipPath id="any-clip">
+      <path id="path1" d="M10,30 H34 V32 Z" />
+    </clipPath>
+  </defs>
+
+  <circle id="oval-area" r="90" />
+  <ellipse id="ovallipse" cx="100" cy="50" rx="100" ry="50" />
+  <polygon id="poly-point" points="0,100 50,25 50,75 100,0" />
+
+</svg>

@@ -1,0 +1,69 @@
+/*
+name: verify class, id and variable
+input:
+   additionals:
+      modules:
+         - name: simple parsing option
+           options:
+         - name: no class
+           options:
+              cssClass: false
+         - name: no id
+           options:
+              cssId: false
+         - name: no class, no id
+           options:
+              cssId: false
+              cssClass: false
+         - name: no class, no id, no variable
+           options:
+              cssId: false
+              cssClass: false
+              cssVariable: false
+output:
+   modules:
+      - versionColor: "--version-color"
+        sampleCase: "--sample-case"
+        info: ".info"
+        mask: "#mask"
+      - versionColor: "--version-color"
+        sampleCase: "--sample-case"
+        mask: "#mask"
+      - versionColor: "--version-color"
+        sampleCase: "--sample-case"
+        info: ".info"
+      - versionColor: "--version-color"
+        sampleCase: "--sample-case"
+      -
+*/
+
+:root{
+   --version-color: red;
+}
+
+/* Do not format this, its intentionally to test the parsing */
+html {
+   color: 1;
+   --sample-case
+   :10px;
+}
+
+body {
+   width: 100%;
+}
+
+div {
+   display: inline;
+}
+
+div.info{
+   display: block;
+}
+
+.info {
+   display: table;
+}
+
+#mask {
+   background-color: red;
+}

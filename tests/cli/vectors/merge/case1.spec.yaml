@@ -1,0 +1,50 @@
+name: Merge Svg Module
+input:
+   testOptions:
+      - name: convension options
+        options:
+           merge: true
+           glob: tests/cli/vectors/merge/svg*.spec.svg
+           convension: snake
+
+      - name: alias options
+        options:
+          merge: true
+          alias:
+            module: "@resmod"
+            path: tests
+          glob: tests/cli/vectors/merge/svg*.spec.svg
+          output: tests/cli/vectors/out
+          convension: pascal
+
+output: 
+   byOptions:
+      - file: tests/cli/vectors/merge/merge.svg.d.ts
+        content: >-
+                   declare module "tests/cli/vectors/merge" {
+                     export const any_group: string
+                     export const any_mask: string
+                     export const any_clip: string
+                     export const oval_area: string
+                     export const ovallipse: string
+                     export const poly_point: string
+                     export const super_group: string
+                     export const blur_me: string
+                     export const sign_area: string
+                     export const rounded_area: string
+                   }
+
+      - file: tests/cli/vectors/out/merge.svg.d.ts
+        content: >-
+                   declare module "@resmod/cli/vectors/merge" {
+                     export const AnyGroup: string
+                     export const AnyMask: string
+                     export const AnyClip: string
+                     export const OvalArea: string
+                     export const Ovallipse: string
+                     export const PolyPoint: string
+                     export const SuperGroup: string
+                     export const BlurMe: string
+                     export const SignArea: string
+                     export const RoundedArea: string
+                   }

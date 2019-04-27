@@ -1,0 +1,56 @@
+/*
+name: Sample Css Module
+input:
+   testOptions:
+      - name: convension options
+        options:
+           merge: false
+           glob: tests/cli/styles/css1.spec.css
+           convension: snake
+
+      - name: alias options
+        options:
+           merge: false
+           alias:
+              module: @resmod
+              path: tests
+           glob: tests/cli/styles/css1.spec.css
+           convension: pascal
+
+
+output: 
+   byOptions:
+      - file: tests/cli/styles/css1.spec.d.ts
+        content: >-
+                   declare module "tests/cli/styles/css1.spec.css" {
+                     export const simple_color: string
+                     export const global_margin: string
+                     export const test_page: string
+                     export const dark_purple: string
+                     export const melody: string
+                   }
+
+      - file: tests/cli/styles/css1.spec.d.ts
+        content: >-
+                   declare module "@resmod/cli/styles/css1.spec.css" {
+                     export const SimpleColor: string
+                     export const GlobalMargin: string
+                     export const TestPage: string
+                     export const DarkPurple: string
+                     export const Melody: string
+                   }
+*/
+:root {
+   --simple-color: red;
+   --global-margin: 16px;
+}
+
+div.test-page {
+   margin: var(--global-margin);
+   color: var(--dark-purple, --simple-color);
+}
+
+#melody {
+   width: 50px;
+   height: 10px;
+}

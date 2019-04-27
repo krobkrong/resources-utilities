@@ -1,0 +1,15 @@
+div.collaborate-team {
+   font: var(--text-family);
+   width: var(--remain-space, 100px);
+}
+
+#down-vote {
+   color: red;
+   border: var(--border-vote);
+}
+
+div.simple-message,
+div.delivery {
+   color: white;
+   background: black;
+}

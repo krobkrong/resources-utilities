@@ -1,0 +1,86 @@
+<!--
+name: simple svg module
+input:
+   testOptions:
+      - name: default options
+        options:
+          merge: false
+          glob: tests/cli/vectors/svg1.spec.svg
+
+      - name: alias options
+        options:
+          merge: false
+          alias:
+            module: @resmod
+            path: tests
+          glob: tests/cli/vectors/svg1.spec.svg
+
+      - name: output options
+        options:
+          merge: false
+          glob: tests/cli/vectors/svg1.spec.svg
+          output: tests/cli/vectors/out
+
+      - name: ouput and alias options
+        options:
+          merge: false
+          alias:
+            module: @resmod
+            path: tests
+          glob: tests/cli/vectors/svg1.spec.svg
+          output: tests/cli/vectors/out
+
+output:
+   byOptions:
+      - file: tests/cli/vectors/svg1.spec.d.ts
+        content: >-
+                   declare module "tests/cli/vectors/svg1.spec.svg" {
+                     export const myMask: string
+                     export const myCurveArea: string
+                     export const dataPoint: string
+                     export const areaInterested: string
+                   }
+
+      - file: tests/cli/vectors/svg1.spec.d.ts
+        content: >-
+                   declare module "@resmod/cli/vectors/svg1.spec.svg" {
+                     export const myMask: string
+                     export const myCurveArea: string
+                     export const dataPoint: string
+                     export const areaInterested: string
+                   }
+
+      - file: tests/cli/vectors/out/svg1.spec.d.ts
+        content: >-
+                   declare module "tests/cli/vectors/svg1.spec.svg" {
+                     export const myMask: string
+                     export const myCurveArea: string
+                     export const dataPoint: string
+                     export const areaInterested: string
+                   }
+
+      - file: tests/cli/vectors/out/svg1.spec.d.ts
+        content: >-
+                   declare module "@resmod/cli/vectors/svg1.spec.svg" {
+                     export const myMask: string
+                     export const myCurveArea: string
+                     export const dataPoint: string
+                     export const areaInterested: string
+                   }
+-->
+<svg width="100" height="600">
+
+  <defs>
+    <mask id="my-mask">
+      <rect width="100" height="100" />
+      <path d="M10,35 A20,20,0,0,1,50,35 A20,20,0,0,1,90,35 Q90,65,50,95 Q10,65,10,35 Z" fill="black" />
+    </mask>
+    <clipPath id="my-curve-area">
+      <path d="M10,30 H34 V32 Z" />
+    </clipPath>
+  </defs>
+
+  <polygon id="data-point" points="0,100 50,25 50,75 100,0" />
+  <circle id="area-interested" r="90" />
+
+</svg>

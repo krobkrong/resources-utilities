@@ -1,0 +1,30 @@
+/*
+name: verify prefix with name convension
+input:
+   additionals:
+      modules:
+         - name: snake case with All lowercase
+           options:
+output:
+   modules:
+      - simpleColor: "--simple-color"
+        globalMargin: "--global-margin"
+        darkPurple: "--dark-purple"
+        testPage: ".test-page"
+        melody: "#melody"
+*/
+
+:root {
+   --simple-color: red;
+   --global-margin: 16px;
+}
+
+div.test-page {
+   margin: var(--global-margin);
+   color: var(--dark-purple, --simple-color);
+}
+
+#melody {
+   width: 50px;
+   height: 10px;
+}

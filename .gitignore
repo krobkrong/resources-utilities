@@ -59,3 +59,13 @@ typings/
 
 # next.js build output
 .next
+
+# exclude ide
+.vscode
+
+# build debugging
+build
+dist
+
+# ignore generate file by the test
+tests/cli/*.d.ts

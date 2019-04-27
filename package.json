@@ -1,0 +1,67 @@
+{
+  "name": "@krobkrong/resources-utilities",
+  "version": "0.0.1",
+  "description": "A node utilities to generate typescript defition from svg, css, scss.",
+  "main": "src/index.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/krobkrong/resources-utilities.git"
+  },
+  "keywords": [
+    "typescript",
+    "resources",
+    "module",
+    "svg",
+    "css",
+    "scss",
+    "sass"
+  ],
+  "author": "veasna sreng",
+  "license": "Apache-2.0",
+  "private": false,
+  "bin": {
+    "resutil": "dist/cli/resutil.js"
+  },
+  "scripts": {
+    "test": "jest --colors --coverage",
+    "build": "rollup -c rollup.config.ts"
+  },
+  "jest": {
+    "clearMocks": true,
+    "coverageDirectory": "coverage",
+    "testEnvironment": "node",
+    "preset": "ts-jest",
+    "moduleNameMapper": {
+      "^@resmod/(.*)$": "<rootDir>/src/$1",
+      "^@test-helper/(.*)$": "<rootDir>/tests/helpers/$1"
+    }
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.1",
+    "@types/jest": "^24.0.11",
+    "@types/node": "^11.13.2",
+    "@types/yaml": "^1.0.2",
+    "glob": "^7.1.3",
+    "jest": "^24.7.1",
+    "rollup": "^1.10.1",
+    "rollup-plugin-commonjs": "^9.3.4",
+    "rollup-plugin-executable": "^1.4.5",
+    "rollup-plugin-replace": "^2.2.0",
+    "rollup-plugin-typescript": "^1.0.1",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.1.0",
+    "tsconfig-paths": "^3.8.0",
+    "tslib": "^1.9.3",
+    "typescript": "^3.4.5",
+    "yaml": "^1.5.0"
+  },
+  "dependencies": {
+    "@types/node-sass": "^4.11.0",
+    "@types/yargs": "^13.0.0",
+    "loader-utils": "^1.2.3",
+    "node-sass": "^4.11.0",
+    "svgo": "^1.2.1",
+    "tar": "^4.4.8",
+    "yargs": "^13.2.2"
+  }
+}

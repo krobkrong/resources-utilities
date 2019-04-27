@@ -1,0 +1,72 @@
+<!--
+name: simple svg
+input:
+   additionals:
+      testOptions:
+         - name: "with snake convension options"
+           options:
+              convension: snake
+         - name: "with prefix & snake convension options"
+           options:
+              convension: snake
+              prefix: true
+output:
+   byOptions:
+      - module:
+          ico_cir_cle: "ico-cir_Cle"
+          _oi_path: "_oi-pAth"
+          _su933_op: "-su933_op"
+          p03_8r8: "P03-8r8"
+        meta:
+          name: svg
+          elementType: svg
+          childs:
+            - name: circle
+              elementType: circle
+              id: ico-cir_Cle
+            - name: path
+              elementType: path
+              id: _oi-pAth
+            - name: rect
+              elementType: rect
+              id: -su933_op
+            - name: polygon
+              elementType: polygon
+              id: P03-8r8
+
+      - module:
+          circle_ico_cir_cle: "ico-cir_Cle"
+          path__oi_path: "_oi-pAth"
+          rect__su933_op: "-su933_op"
+          polygon_p03_8r8: "P03-8r8"
+        meta:
+          name: svg
+          elementType: svg
+          childs:
+            - name: circle
+              elementType: circle
+              id: ico-cir_Cle
+            - name: path
+              elementType: path
+              id: _oi-pAth
+            - name: rect
+              elementType: rect
+              id: -su933_op
+            - name: polygon
+              elementType: polygon
+              id: P03-8r8
+-->
+
+<svg>
+
+   <!-- 
+   Below element does not have enough attribute to be consider as a valid svg element.
+   However this test purpose is to verify generate variable name convension only.
+    -->
+   <circle id = "ico-cir_Cle" />
+   <path id = "_oi-pAth" />
+   <rect id = "-su933_op" />
+   <polygon id = "P03-8r8" />
+
+</svg>
+   

@@ -1,0 +1,125 @@
+/*
+name: verify prefix with name convension
+input:
+   additionals:
+      modules:
+         - name: snake case with All lowercase
+           options:
+              convension: snake
+              prefix: true
+         - name: Snake with All uppercase
+           options:
+              convension: Snake
+              prefix: true
+         - name: Pascal or Camel uppercase
+           options:
+              convension: pascal
+              prefix: true
+         - name: Camel
+           options:
+              convension: camel
+              prefix: true
+output:
+   modules:
+      - var_version_color: "--version-color"
+        var_data__padding: "--data--padding"
+        var_possibility_rate: "--possibility-rate"
+        var_sample_case: "--sample-case"
+        var_test_info: "--test-info"
+        id__data_938_iop: "#_data-938_iop"
+        class_info: ".info"
+        class_info_m89_2i: ".info-m89_2i"
+        id__hyphen_id: "#-hyphen-id"
+        id_mask: "#mask"
+        id_data_tracing: "#data-tracing"
+        class_value_index: ".value-index"
+        id_slibling: "#slibling"
+        id_nest: "#nest"
+      - VAR_VERSION_COLOR: "--version-color"
+        VAR_DATA__PADDING: "--data--padding"
+        VAR_POSSIBILITY_RATE: "--possibility-rate"
+        VAR_SAMPLE_CASE: "--sample-case"
+        VAR_TEST_INFO: "--test-info"
+        ID__DATA_938_IOP: "#_data-938_iop"
+        CLASS_INFO: ".info"
+        CLASS_INFO_M89_2I: ".info-m89_2i"
+        ID__HYPHEN_ID: "#-hyphen-id"
+        ID_MASK: "#mask"
+        ID_DATA_TRACING: "#data-tracing"
+        CLASS_VALUE_INDEX: ".value-index"
+        ID_SLIBLING: "#slibling"
+        ID_NEST: "#nest"
+      - VarVersionColor: "--version-color"
+        VarData_Padding:  "--data--padding"
+        VarPossibilityRate: "--possibility-rate"
+        VarSampleCase: "--sample-case"
+        VarTestInfo: "--test-info"
+        Id_data938_iop: "#_data-938_iop"
+        ClassInfo: ".info"
+        ClassInfoM89_2i: ".info-m89_2i"
+        IdHyphenId: "#-hyphen-id"
+        IdMask: "#mask"
+        IdDataTracing: "#data-tracing"
+        ClassValueIndex: ".value-index"
+        IdSlibling: "#slibling"
+        IdNest: "#nest"
+      - varVersionColor: "--version-color"
+        varData_Padding: "--data--padding"
+        varPossibilityRate: "--possibility-rate"
+        varSampleCase: "--sample-case"
+        varTestInfo: "--test-info"
+        id_data938_iop: "#_data-938_iop"
+        classInfo: ".info"
+        classInfoM89_2i: ".info-m89_2i"
+        idHyphenId: "#-hyphen-id"
+        idMask: "#mask"
+        idDataTracing: "#data-tracing"
+        classValueIndex: ".value-index"
+        idSlibling: "#slibling"
+        idNest: "#nest"
+*/
+
+:root {
+   --version-color: red;
+   --data--padding: 10px;
+}
+
+/* Do not format this, its intentionally to test the parsing */
+html {
+   color: 1;
+   --possibility-rate: 100%;
+   --sample-case
+   :10px;
+}
+
+body {
+   width: 100%;
+   color: var(--test-info, red);
+}
+
+div#_data-938_iop {
+   display: inline;
+}
+
+div.info {
+   display: block;
+}
+
+.info-m89_2i {
+   display: table;
+}
+
+#-hyphen-id {
+   background-color: red;
+}
+
+#mask {
+   background-color: red;
+}
+
+/* no special case */
+
+#data-tracing { margin: 1px; }
+.value-index { width: 100%; }
+#slibling, .info { color: rebeccapurple; }
+#nest .info { bottom: 1px; }

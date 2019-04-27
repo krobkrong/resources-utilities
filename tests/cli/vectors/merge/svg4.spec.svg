@@ -1,0 +1,18 @@
+<svg width="100" height="600">
+
+   <defs>
+      <g id="super-group">
+         <ellipse cx="100" cy="50" rx="100" ry="50" />
+         <line x1="0" y1="80" x2="100" y2="20" stroke="black" />
+         <polyline points="100,100 150,25 150,75 200,0" fill="none" stroke="black" />
+      </g>
+   </defs>
+
+   <filter id="blur-me">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="5"/>
+   </filter>
+
+   <polygon id="sign-area" points="100,100 150,25 150,75 200,0" fill="none" stroke="black" />
+   <rect id="rounded-area" x="120" y="0" width="100" height="100" rx="15" ry="15" />
+
+</svg>

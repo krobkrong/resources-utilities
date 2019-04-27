@@ -1,0 +1,121 @@
+/*
+name: verify name convension
+input:
+   additionals:
+      modules:
+         - name: snake case with All lowercase
+           options:
+              convension: snake
+         - name: Snake with All uppercase
+           options:
+              convension: Snake
+         - name: Pascal or Camel uppercase
+           options:
+              convension: pascal
+         - name: Camel
+           options:
+              convension: camel
+output:
+   modules:
+      - version_color: "--version-color"
+        data__padding: "--data--padding"
+        possibility_rate: "--possibility-rate"
+        sample_case: "--sample-case"
+        test_info: "--test-info"
+        _data_938_iop: "#_data-938_iop"
+        info: ".info"
+        info_m89_2i: ".info-m89_2i"
+        _hyphen_id: "#-hyphen-id"
+        mask: "#mask"
+        data_tracing: "#data-tracing"
+        value_index: ".value-index"
+        slibling: "#slibling"
+        nest: "#nest"
+      - VERSION_COLOR: "--version-color"
+        DATA__PADDING: "--data--padding"
+        POSSIBILITY_RATE: "--possibility-rate"
+        SAMPLE_CASE: "--sample-case"
+        TEST_INFO: "--test-info"
+        _DATA_938_IOP: "#_data-938_iop"
+        INFO: ".info"
+        INFO_M89_2I: ".info-m89_2i"
+        _HYPHEN_ID: "#-hyphen-id"
+        MASK: "#mask"
+        DATA_TRACING: "#data-tracing"
+        VALUE_INDEX: ".value-index"
+        SLIBLING: "#slibling"
+        NEST: "#nest"
+      - VersionColor: "--version-color"
+        Data_Padding: "--data--padding"
+        PossibilityRate: "--possibility-rate"
+        SampleCase: "--sample-case"
+        TestInfo: "--test-info"
+        _data938_iop: "#_data-938_iop"
+        Info: ".info"
+        InfoM89_2i: ".info-m89_2i"
+        HyphenId: "#-hyphen-id"
+        Mask: "#mask"
+        DataTracing: "#data-tracing"
+        ValueIndex: ".value-index"
+        Slibling: "#slibling"
+        Nest: "#nest"
+      - versionColor: "--version-color"
+        data_Padding: "--data--padding"
+        possibilityRate: "--possibility-rate"
+        sampleCase: "--sample-case"
+        testInfo: "--test-info"
+        _data938_iop: "#_data-938_iop"
+        info: ".info"
+        infoM89_2i: ".info-m89_2i"
+        HyphenId: "#-hyphen-id"
+        mask: "#mask"
+        dataTracing: "#data-tracing"
+        valueIndex: ".value-index"
+        slibling: "#slibling"
+        nest: "#nest"
+*/
+
+:root {
+   --version-color: red;
+   --data--padding: 10px;
+}
+
+/* Do not format this, its intentionally to test the parsing */
+html {
+   color: 1;
+   --possibility-rate: 100%;
+   --sample-case
+   :10px;
+}
+
+body {
+   width: 100%;
+   color: var(--test-info, red);
+}
+
+div#_data-938_iop {
+   display: inline;
+}
+
+div.info {
+   display: block;
+}
+
+.info-m89_2i {
+   display: table;
+}
+
+#-hyphen-id {
+   background-color: red;
+}
+
+#mask {
+   background-color: red;
+}
+
+/* no special case */
+
+#data-tracing { margin: 1px; }
+.value-index { width: 100%; }
+#slibling, .info { color: rebeccapurple; }
+#nest .info { bottom: 1px; }

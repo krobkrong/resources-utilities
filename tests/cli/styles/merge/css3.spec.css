@@ -1,0 +1,14 @@
+:root {
+   --simple-color: red;
+   --global-margin: 16px;
+}
+
+div.test-page {
+   margin: var(--global-margin);
+   color: var(--dark-purple, --simple-color);
+}
+
+#melody {
+   width: 50px;
+   height: 10px;
+}

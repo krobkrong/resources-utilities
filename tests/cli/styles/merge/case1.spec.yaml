@@ -1,0 +1,55 @@
+name: Merge Css Module
+input:
+   testOptions:
+      - name: convension options
+        options:
+           merge: true
+           glob: tests/cli/styles/merge/css*.spec.css
+           convension: snake
+
+      - name: alias options
+        options:
+          merge: true
+          alias:
+            module: "@resmod"
+            path: tests
+          glob: tests/cli/styles/merge/css*.spec.css
+          output: tests/cli/styles/out
+          convension: pascal
+
+
+output: 
+   byOptions:
+      - file: tests/cli/styles/merge/merge.css.d.ts
+        content: >-
+                   declare module "tests/cli/styles/merge" {
+                     export const simple_color: string
+                     export const global_margin: string
+                     export const test_page: string
+                     export const dark_purple: string
+                     export const melody: string
+                     export const collaborate_team: string
+                     export const text_family: string
+                     export const remain_space: string
+                     export const down_vote: string
+                     export const border_vote: string
+                     export const simple_message: string
+                     export const delivery: string
+                   }
+
+      - file: tests/cli/styles/out/merge.css.d.ts
+        content: >-
+                   declare module "@resmod/cli/styles/merge" {
+                     export const SimpleColor: string
+                     export const GlobalMargin: string
+                     export const TestPage: string
+                     export const DarkPurple: string
+                     export const Melody: string
+                     export const CollaborateTeam: string
+                     export const TextFamily: string
+                     export const RemainSpace: string
+                     export const DownVote: string
+                     export const BorderVote: string
+                     export const SimpleMessage: string
+                     export const Delivery: string
+                   }

@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "lib": [
+      "es2015",
+      "es2017",
+      "dom"
+    ],
+    "strict": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "allowJs": false,
+    "outDir": "./build",
+    "downlevelIteration": true,
+    "baseUrl": "./",
+    "paths": {
+      "@resmod/*": [
+        "src/*"
+      ],
+      "@test-helper/*": [
+        "tests/helpers/*"
+      ],
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "tests/**/*.spec.ts",
+    "tests/helpers/*.ts",
+  ],
+  "exclude": [
+    "node_modules", "build"
+  ]
+}

@@ -1,0 +1,89 @@
+/*
+name: Sample Css Module
+input:
+   testOptions:
+      - name: default options
+        options:
+           merge: false
+           glob: tests/cli/styles/css1.spec.css
+
+      - name: alias options
+        options:
+           merge: false
+           alias:
+              module: @resmod
+              path: tests
+           glob: tests/cli/styles/css1.spec.css
+
+      - name: output options
+        options:
+           merge: false
+           glob: tests/cli/styles/css1.spec.css
+           output: tests/cli/styles/out
+
+      - name: ouput and alias options
+        options:
+           merge: false
+           alias:
+              module: @resmod
+              path: tests
+           glob: tests/cli/styles/css1.spec.css
+           output: tests/cli/styles/out
+
+
+output: 
+   byOptions:
+      - file: tests/cli/styles/css1.spec.d.ts
+        content: >-
+                   declare module "tests/cli/styles/css1.spec.css" {
+                     export const simpleColor: string
+                     export const globalMargin: string
+                     export const testPage: string
+                     export const darkPurple: string
+                     export const melody: string
+                   }
+
+      - file: tests/cli/styles/css1.spec.d.ts
+        content: >-
+                   declare module "@resmod/cli/styles/css1.spec.css" {
+                     export const simpleColor: string
+                     export const globalMargin: string
+                     export const testPage: string
+                     export const darkPurple: string
+                     export const melody: string
+                   }
+
+      - file: tests/cli/styles/out/css1.spec.d.ts
+        content: >-
+                   declare module "tests/cli/styles/css1.spec.css" {
+                     export const simpleColor: string
+                     export const globalMargin: string
+                     export const testPage: string
+                     export const darkPurple: string
+                     export const melody: string
+                   }
+
+      - file: tests/cli/styles/out/css1.spec.d.ts
+        content: >-
+                   declare module "@resmod/cli/styles/css1.spec.css" {
+                     export const simpleColor: string
+                     export const globalMargin: string
+                     export const testPage: string
+                     export const darkPurple: string
+                     export const melody: string
+                   }
+*/
+:root {
+   --simple-color: red;
+   --global-margin: 16px;
+}
+
+div.test-page {
+   margin: var(--global-margin);
+   color: var(--dark-purple, --simple-color);
+}
+
+#melody {
+   width: 50px;
+   height: 10px;
+}

@@ -1,0 +1,51 @@
+<!--
+name: multiple elements
+input:
+   additionals:
+      testOptions:
+         - name: "normal svg parsing options"
+           options:
+              convension: camel
+output:
+   byOptions:
+      - module:
+          circle: "circle"
+          dataRect: "data-rect"
+          infoSample: "info-Sample"
+        meta:
+          name: svg
+          elementType: svg
+          width: "100"
+          height: "600"
+          childs:
+            - name: circle
+              elementType: circle
+              id: circle
+            - name: rect
+              elementType: rect
+              width: "10"
+              height: "80"
+              id: data-rect
+            - name: defs
+              elementType: defs
+              childs:
+                - name: path
+                  elementType: path
+                  id: info-Sample
+                  d: M10 10 L100 10 Z
+            - name: polygon
+              elementType: polygon
+              points: 0,100 50,25 50,75 100,0
+-->
+
+<svg width="100" height="600">
+
+   <circle id = "circle"/>
+   <rect id="data-rect" width="10" height="80"/>
+   <defs>
+      <path id="info-Sample" d="M10 10 L100 10 Z" />
+   </defs>
+   <polygon points="0,100 50,25 50,75 100,0" />
+
+</svg>
+   
