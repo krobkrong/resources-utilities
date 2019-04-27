@@ -43,5 +43,5 @@ reutil -m -o examples/svg/icons/out --mod @examples --path examples examples/svg
 
 Now, you can import the module as 
 ```typescript
-import * as cssModule from "@examples/svg/icons"
+import * as svgModule from "@examples/svg/icons"
 ```
