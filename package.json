@@ -1,6 +1,6 @@
 {
   "name": "@krobkrong/resources-utilities",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A node utilities to generate typescript defition from svg, css, scss.",
   "main": "src/index.ts",
   "repository": {
@@ -25,7 +25,8 @@
   "scripts": {
     "test": "jest --colors --coverage",
     "build": "rollup -c rollup.config.ts",
-    "release": "standard-version"
+    "pre-release": "standard-version",
+    "release": "yarn publish --tag beta --access public"
   },
   "jest": {
     "clearMocks": true,
