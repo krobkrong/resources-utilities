@@ -1,0 +1,15 @@
+
+html, body {
+   margin: 0;
+   padding: 0;
+   background-color: var(--page-bg-theme, white);
+}
+
+div.light {
+   background: white;
+}
+
+div.light #list-model {
+   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+   color: var(--model-top-form, #A03482);
+}
