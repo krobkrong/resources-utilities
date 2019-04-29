@@ -5,7 +5,7 @@ import commonjs from 'rollup-plugin-commonjs';
 import executable from 'rollup-plugin-executable';
 import replace from 'rollup-plugin-replace'
 
-export default {
+export default [{
    input: 'src/cli/resutil.ts',
    plugins: [
       replace({
@@ -21,4 +21,13 @@ export default {
       format: "cjs",
       file: "dist/cli/resutil.js"
    }
-}
+}, {
+   input: 'build/index.js',
+   plugins: [
+      commonjs({ extensions: ['.js'] }),
+   ],
+   output: {
+      format: "cjs",
+      file: "dist/index.js"
+   }
+}]

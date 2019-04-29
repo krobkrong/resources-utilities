@@ -18,6 +18,8 @@
     "allowJs": false,
     "outDir": "./build",
     "downlevelIteration": true,
+    "declaration": true,
+    "declarationDir": "./dist/types",
     "baseUrl": "./",
     "paths": {
       "@resmod/*": [

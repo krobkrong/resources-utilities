@@ -42,7 +42,7 @@ For more information run `resutil --help`
 Resource utilities provided APIs for both CSS and SVG. The below code utilize `StyleUtils` namespace to parse raw css file:
 
 ```typescript
-import { StyleUtils } from "@krobkrong/resources-utilities/style/parser";
+import { StyleUtils } from "@krobkrong/resources-utilities";
 
 let resource = StyleUtils.parse(raw, {
    convension: "camel",

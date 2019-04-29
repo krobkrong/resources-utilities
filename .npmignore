@@ -3,5 +3,9 @@ node_modules
 coverage
 examples
 tests
+build
+src
+utilties
 .vscode
 .circleci
+rollup.config.ts
