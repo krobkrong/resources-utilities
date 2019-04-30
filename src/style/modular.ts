@@ -1,7 +1,7 @@
 import { CssParseOptions, StyleParser } from '@resmod/style/parser'
 import { NameConvension, Selector } from '@resmod/common/convension';
 import { CssSelectorType, StyleType } from '@resmod/style/types';
-import { ResourceModule, Resources, ResourceMetadata } from '@resmod/loader/types';
+import { ResourceModule, Resources, ResourceMetadata } from '@resmod/webpack/loader/types';
 
 /** A string to append infront of selector */
 interface Prefix {

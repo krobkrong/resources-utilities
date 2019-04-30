@@ -1,7 +1,7 @@
 
 import { CssSelectorType } from '@resmod/style/types';
 import { CssModuleParser } from '@resmod/style/modular';
-import { ResourceModule, Resources, ResourceMetadata } from '@resmod/loader/types';
+import { ResourceModule, Resources, ResourceMetadata } from '@resmod/webpack/loader/types';
 import { NameConvension } from '@resmod/common/convension';
 
 /**

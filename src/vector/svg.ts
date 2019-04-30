@@ -1,7 +1,7 @@
 import { VectorParseOptions, VectorParser } from "@resmod/vector/parser";
 import { NameConvension, RawValue, Selector, LowercaseCharacterName, AlphabetCharacterName } from "@resmod/common/convension";
 import { SvgElementType, VectorType, VectorElementType } from "@resmod/vector/types";
-import { ResourceModule, Resources, ResourceMetadata } from "@resmod/loader/types";
+import { ResourceModule, Resources, ResourceMetadata } from "@resmod/webpack/loader/types";
 
 /** A string to append infront of variable name of each typescript definition */
 interface Prefix {

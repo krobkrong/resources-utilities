@@ -2,7 +2,7 @@
 import { StyleUtils, CssParseOptions } from '@resmod/style/parser'
 import { TestCaseHelper, TestCase, CssTestArgument } from '@test-helper/helper'
 import { GlobSync } from 'glob';
-import { ResourceModule } from '@resmod/loader/types';
+import { ResourceModule } from '@resmod/webpack/loader/types';
 import { StyleType, CssSelectorType } from '@resmod/style/types';
 
 interface TestOptions {

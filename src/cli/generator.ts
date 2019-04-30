@@ -1,4 +1,4 @@
-import { ResourceModule, SerializeResourceModule } from "@resmod/loader/types";
+import { ResourceModule, SerializeResourceModule } from "@resmod/webpack/loader/types";
 import { CommandLineOptions } from "@resmod/cli/dts";
 import { dirname, parse } from "path";
 import { existsSync, mkdirSync, writeFileSync } from "fs";

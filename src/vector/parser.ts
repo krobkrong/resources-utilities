@@ -1,7 +1,7 @@
 import { SvgModuleParser } from "@resmod/vector/svg";
 import { VectorType, VectorElementType } from "@resmod/vector/types";
 import { NameConvension } from "@resmod/common/convension";
-import { ResourceModule, Resources, ResourceMetadata } from "@resmod/loader/types";
+import { ResourceModule, Resources, ResourceMetadata } from "@resmod/webpack/loader/types";
 
 /**
  * vector parser option

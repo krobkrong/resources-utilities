@@ -1,7 +1,7 @@
 import { TestCaseHelper, TestCase, VectorTestArgument } from '@test-helper/helper'
 import { GlobSync } from 'glob';
 import { VectorParseOptions, VectorUtils } from '@resmod/vector/parser';
-import { ResourceModule, ResourceMetadata } from '@resmod/loader/types';
+import { ResourceModule, ResourceMetadata } from '@resmod/webpack/loader/types';
 import { VectorType, VectorElementType, SvgElementType } from '@resmod/vector/types';
 
 

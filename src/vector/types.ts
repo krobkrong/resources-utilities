@@ -4,9 +4,8 @@
  */
 export enum VectorType {
    SVG = "svg",
-   PDF = "pdf",
-   EPS = "eps",
-   AI = "ai"
+   // More type that can possibility included
+   // PDF, EPS, AI
 }
 
 /**
