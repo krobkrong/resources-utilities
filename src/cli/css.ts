@@ -20,7 +20,7 @@ export class CssDTSGenerator extends DTSGenerator {
     * @param raw raw css stylesheet
     * @param dtsMeta an optional typescript definition metadata.
     */
-   generate(raw: string, dtsMeta?: DTSMeta): void {
+   generate(raw: string, name: string, dtsMeta?: DTSMeta): void {
       let resource = StyleUtils.parse(raw, {
          convension: this.options.convension,
          cssClass: true,
@@ -31,6 +31,9 @@ export class CssDTSGenerator extends DTSGenerator {
          this.setResourceModule(resource!.resourceModule)
          if (!this.inTransaction()) {
             this.commitInternal(dtsMeta!)
+         } else if (this.isSaveMerge()) {
+            this.mergeResource(`\n\n*** Merge ${name} ***\n\n`)
+            this.mergeResource(resource!.metadata["raw"] as string)
          }
       } else {
          console.log(`Warning: ${dtsMeta!.extension} resource does not contain any id, class or variable.`)

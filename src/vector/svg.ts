@@ -53,9 +53,13 @@ export interface SvgMetadata extends ResourceMetadata {
     */
    elementType: SvgElementType
    /**
+    * a text between tag, use with text and tspan tag
+    */
+   ctext?: string
+   /**
     * a list of child vector element
     */
-   childs: SvgMetadata[]
+   childs?: SvgMetadata[]
 }
 
 /** a class that only parse attribute of each tag of svg element */
@@ -193,6 +197,7 @@ export class SvgModuleParser implements VectorParser<SvgMetadata> {
 
    private validSvgElement: ValidElement
    private attrParser: AttributeParser
+   private includeMeta: boolean
 
    /**
     * Create svg vector parser
@@ -201,6 +206,7 @@ export class SvgModuleParser implements VectorParser<SvgMetadata> {
    constructor(options: VectorParseOptions) {
       this.validSvgElement = validElement()
       this.attrParser = new AttributeParser(options)
+      this.includeMeta = options.includeMeta === true
    }
 
    /**
@@ -217,6 +223,7 @@ export class SvgModuleParser implements VectorParser<SvgMetadata> {
       var skipUntil = 60  // skip until <
       var commentSection = false
       var stack: SvgMetadata[] = []
+      var ctext: string | undefined
 
       let appendStack = (set: SvgElementType): SvgMetadata => {
          let child = { name: tag.rawString(), elementType: set } as SvgMetadata
@@ -248,12 +255,19 @@ export class SvgModuleParser implements VectorParser<SvgMetadata> {
 
          if (skipUntil > 0) {
             if (skipUntil != ch) {
+               if (ctext !== undefined) {
+                  ctext += String.fromCharCode(ch)
+               }
                continue
             } else if (commentSection && rawSvg.substr(index, 3) === '-->') {
                skipUntil = 60 // skip until <
                commentSection = false
                index += 3
                continue
+            } else if (ctext !== undefined) {
+               ctext = ctext.trim()
+               if (ctext) svgMeta!.ctext = ctext
+               ctext = undefined
             }
          }
 
@@ -310,11 +324,18 @@ export class SvgModuleParser implements VectorParser<SvgMetadata> {
                continue
 
             case 62:    // > end of tag
-               if (tag.toString().length > 0 && !tag.isLocked()) {
-                  // tag that does not have attribute
+               if (tag.toString().length > 0) {
                   let t = tag.toString() as SvgElementType
-                  svgMeta = appendStack(t)
-                  tag.lock()
+                  if (!tag.isLocked()) {
+                     // tag that does not have attribute
+                     svgMeta = appendStack(t)
+                     tag.lock()
+                  }
+                  if (t == SvgElementType.TEXT || tag.toString() === "tspan") {
+                     ctext = ""
+                  } else {
+                     ctext = undefined
+                  }
                }
                skipUntil = 60 // skip until <
                continue
@@ -329,7 +350,7 @@ export class SvgModuleParser implements VectorParser<SvgMetadata> {
          }
       }
 
-      return Object.keys(resModule).length > 0 && resModule.constructor === Object ?
+      return (this.includeMeta || (Object.keys(resModule).length > 0 && resModule.constructor === Object)) ?
          {
             resourceModule: resModule,
             resourceExtension: ["svg"],
@@ -436,4 +457,77 @@ function prefix(convension: NameConvension): Prefix {
 
          return prefix
    }
+}
+
+/**
+ * Serialize resource metadata into it origin form.
+ * @param rm a resource metadata
+ * @param tab space to use as indent
+ */
+export function SerializeSvgResourceMetadata(rootRM: ResourceMetadata, id?: string, skipSvg: boolean = true, tab: string = "  "): string {
+   let hierarchies: ResourceMetadata[]
+   let wrapInSymbol: boolean
+   if (skipSvg && (rootRM as SvgMetadata).childs) {
+      hierarchies = (rootRM as SvgMetadata).childs!
+      wrapInSymbol = rootRM["viewBox"] !== undefined && rootRM["width"] !== undefined && rootRM["height"] !== undefined
+   } else {
+      hierarchies = [rootRM]
+      wrapInSymbol = false
+   }
+
+   var attrSerialize = (rm: ResourceMetadata, ignoreId: boolean): string => {
+      let keys = Object.keys(rm)
+      var buf = ""
+      keys.forEach(key => {
+         if (key === "ctext" || key === "name" || key === "childs" || key === "raw" || key === "elementType") {
+            return
+         }
+         if (ignoreId && key === "id") {
+            return
+         }
+         buf += ` ${key}="${rm[key]}"`
+      })
+      return buf
+   }
+
+   var isSymbolable = (svgMeta: SvgMetadata): boolean => {
+      return svgMeta.elementType !== SvgElementType.CLIP_PATH &&
+         svgMeta.elementType !== SvgElementType.DEFS &&
+         svgMeta.elementType !== SvgElementType.MASK &&
+         svgMeta.elementType !== SvgElementType.SVG &&
+         svgMeta.elementType !== SvgElementType.FILTER
+   }
+
+   var traverse: (hr: ResourceMetadata[], indent: string, level: number) => string
+   traverse = (hr: ResourceMetadata[], indent: string, level: number): string => {
+      var buf = ""
+      hr.forEach(rm => {
+         let eleid: string = rm["id"] ? rm["id"] as string : id!
+         let svgMeta = rm as SvgMetadata
+         let wrap = level === 0 && wrapInSymbol
+         let indentWrap = wrap ? indent + tab : indent
+
+         var eleBuf = `${indentWrap}<${svgMeta.name}${attrSerialize(rm, wrap)}`
+         if (svgMeta.childs) {
+            eleBuf += ">\n"
+            eleBuf += traverse(svgMeta.childs, indentWrap + tab, level + 1)
+            eleBuf += `${indentWrap}</${svgMeta.name}>\n`
+         } else if (svgMeta.ctext !== undefined) {
+            eleBuf += `>${svgMeta.ctext!}</${svgMeta.name}>\n`
+         } else {
+            eleBuf += "/>\n"
+         }
+
+         if (wrap && isSymbolable(svgMeta)) {
+            buf += `${indent}<symbol id="${eleid}" width="${rootRM["width"]}" height="${rootRM["height"]}" viewBox="${rootRM["viewBox"]}">\n`
+            buf += `${eleBuf}`
+            buf += `${indent}</symbol>\n`
+         } else {
+            buf += eleBuf
+         }
+      })
+      return buf
+   }
+
+   return traverse(hierarchies, "", 0)
 }

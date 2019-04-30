@@ -25,6 +25,9 @@ var argv = yargs.scriptName("resmod")
    .boolean("w")
    .default("w", false)
    .describe("w", "wrap use with merge option set to true. If wrap is false the generated file utilize id value in the resource file otherwise the file name will be used as variable name in definition file.")
+   //
+   .string("s")
+   .describe("s", "path to save the parsed data into a single file. Use together with merge true. Use . to store the generated file at the same location as original file.")
    // general flag
    .help("help")
    .argv
@@ -52,7 +55,8 @@ let cmdOpt = {
    alias: alias,
    output: argv["o"],
    convension: argv["n"],
-   glob: argv["_"]
+   glob: argv["_"],
+   save: argv["s"]
 } as CommandLineOptions
 
 // generate dts file

@@ -11,6 +11,8 @@ export interface ResourceModule {
 
 /**
  * Serialize resource module into typescript code.
+ * @param rm resource module
+ * @param tab space to use as indent
  */
 export function SerializeResourceModule(rm: ResourceModule, tab: string = "  "): string {
    var code = ""
@@ -24,7 +26,7 @@ export function SerializeResourceModule(rm: ResourceModule, tab: string = "  "):
  * The object contain raw hierarchy data of resource or a a string raw data.
  */
 export interface ResourceMetadata {
-   [index: string]: string | ResourceMetadata[]
+   [index: string]: string | ResourceMetadata[] | undefined
 }
 
 /**

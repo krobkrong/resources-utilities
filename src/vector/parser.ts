@@ -28,6 +28,10 @@ export interface VectorParseOptions {
     * of the vector element id while parsing the raw vector string.
     */
    convensionCb?: (name: string) => string
+   /**
+    * include metadata even no id found to be used as resources module.
+    */
+   includeMeta?: boolean
 }
 
 /**

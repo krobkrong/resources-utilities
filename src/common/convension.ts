@@ -311,7 +311,7 @@ export class Selector {
  * @param name name of the file
  * @param convension name convension
  */
-export function transformFileConvention(name: string, convension: NameConvension): string {
+export function transformFileNameConvention(name: string, convension: NameConvension): string {
    let replace: string
    let transformCharacter: TransformCharacter
    switch (convension) {

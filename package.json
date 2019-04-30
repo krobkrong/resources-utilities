@@ -31,7 +31,9 @@
     "rework:js": "ts-node utilties/conv.ts -a resmod --js -r build",
     "clean": "rm -rf build && rm -rf dist && rm -rf coverage",
     "pre-release": "standard-version",
-    "release": "yarn publish --tag beta --access public"
+    "release": "yarn publish --tag beta --access public",
+
+    "test:merge": "ts-node -r tsconfig-paths/register src/cli/resutil.ts -m true -s examples/tmp/tmp.mod.svg examples/svg/icons/*.svg"
   },
   "jest": {
     "clearMocks": true,

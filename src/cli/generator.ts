@@ -1,8 +1,8 @@
 import { ResourceModule, SerializeResourceModule } from "@resmod/webpack/loader/types";
 import { CommandLineOptions } from "@resmod/cli/dts";
-import { dirname, parse } from "path";
+import { dirname, parse, basename } from "path";
 import { existsSync, mkdirSync, writeFileSync } from "fs";
-import { transformFileConvention as transformFileNameConvention } from "@resmod/common/convension";
+import { transformFileNameConvention } from "@resmod/common/convension";
 
 /**
  * Provide information about typescript definition such as module and location of file.
@@ -23,6 +23,7 @@ export abstract class DTSGenerator {
 
    private resMod?: ResourceModule
    private transaction: boolean = false
+   private mergeBuffer?: string
 
    protected options: CommandLineOptions
 
@@ -40,6 +41,9 @@ export abstract class DTSGenerator {
     */
    public begin(): void {
       this.transaction = true
+      if (this.isSaveMerge()) {
+         this.mergeBuffer = ""
+      }
    }
 
    /**
@@ -48,7 +52,13 @@ export abstract class DTSGenerator {
     * @param dtsMeta dts metadata
     */
    public commit(dtsMeta: DTSMeta): void {
+      if (this.isSaveMerge()) this.saveMergeResource(dtsMeta)
       this.commitInternal(dtsMeta)
+   }
+
+   /** */
+   protected isSaveMerge(): boolean {
+      return this.options.merge === true && this.options.save !== undefined
    }
 
    /**
@@ -64,7 +74,7 @@ export abstract class DTSGenerator {
     * @param options command line options
     * @param dtsMeta dts metadata
     */
-   public abstract generate(raw: string, dtsMeta?: DTSMeta): void
+   public abstract generate(raw: string, secondaryId: string, dtsMeta?: DTSMeta): void
 
    /**
     * Update existing resource if available otherwise a new resource module is created
@@ -72,6 +82,16 @@ export abstract class DTSGenerator {
     */
    protected setResourceModule(resMod: ResourceModule) {
       this.resMod = Object.assign({}, this.resMod, resMod)
+   }
+
+   /**
+    * Merge s raw resources to exist buffer
+    * @param s raw string resource to be merged
+    */
+   protected mergeResource(s: string) {
+      if (this.isSaveMerge()) {
+         this.mergeBuffer! += s
+      }
    }
 
    /**
@@ -90,6 +110,16 @@ export abstract class DTSGenerator {
          mkdirSync(dir)
       }
       writeFileSync(dtsMeta.genFile!, content)
+   }
+
+   /** save merged content into a file with .mod.ext */
+   private saveMergeResource(dtsMeta: DTSMeta) {
+      let filename = this.options.save === "." ?
+         `${dtsMeta.module!}/${basename(dtsMeta.module!)}.mod${dtsMeta.extension}` :
+         this.options.save!
+      let dir = dirname(filename)
+      if (!existsSync(dir)) mkdirSync(dir)
+      writeFileSync(filename, this.mergeBuffer!)
    }
 
 }
@@ -112,7 +142,7 @@ export class FileDtsGenerator extends DTSGenerator {
    }
 
    //@ts-ignore
-   public generate(raw: string, dtsMeta?: DTSMeta | undefined): void {
+   public generate(raw: string, secondaryId: string, dtsMeta?: DTSMeta | undefined): void {
       throw new Error("Method not implemented.");
    }
 

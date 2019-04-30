@@ -2,9 +2,9 @@ import { SvgDTSGenerator } from "@resmod/cli/svg";
 import { CssDTSGenerator } from "@resmod/cli/css";
 import { readFileSync } from "fs";
 import { renderSync } from "node-sass"
-import { NameConvension } from "@resmod/common/convension";
+import { NameConvension, transformFileNameConvention } from "@resmod/common/convension";
 import { basename, dirname, extname } from "path";
-import { DTSGenerator, DTSMeta, FileDtsGenerator } from "./generator";
+import { DTSGenerator, DTSMeta, FileDtsGenerator } from "@resmod/cli/generator";
 
 
 /**
@@ -60,6 +60,11 @@ export interface CommandLineOptions {
     * **Note:** Snake case is an uppercase version of snake case
     */
    convension: NameConvension
+
+   /**
+    * location where to save file that parsed with merge options.
+    */
+   save?: string
 }
 
 /**
@@ -82,6 +87,9 @@ export function Generate(options: CommandLineOptions): void {
 
    // group file by folder, it is simplified the merge process
    options.glob.forEach(file => {
+      if (file.endsWith(".mod.svg") || file.endsWith(".mod.css")) {
+         return
+      }
       // group by extension
       let ext = extname(file)
       let key = `${dirname(file)}${ext}`
@@ -98,19 +106,20 @@ export function Generate(options: CommandLineOptions): void {
    })
 
    // generate dts
-   let genDts = (file: string, ext: string, dtsMeta?: DTSMeta) => {
+   let genDts = (file: string, name: string, ext: string, dtsMeta?: DTSMeta) => {
+      name = transformFileNameConvention(name, options.convension)
       switch (ext) {
          case ".svg":
-            svgGen!.generate(readFileSync(file).toString(), dtsMeta)
+            svgGen!.generate(readFileSync(file).toString(), name, dtsMeta)
             break
 
          case ".scss":
          case ".sass":
-            cssGen!.generate(renderSync({ file: file }).css.toString(), dtsMeta)
+            cssGen!.generate(renderSync({ file: file }).css.toString(), name, dtsMeta)
             break
 
          case ".css":
-            cssGen!.generate(readFileSync(file).toString(), dtsMeta)
+            cssGen!.generate(readFileSync(file).toString(), name, dtsMeta)
             break
 
          default:
@@ -138,7 +147,8 @@ export function Generate(options: CommandLineOptions): void {
 
          generator!.begin()
          val.forEach(file => {
-            genDts(file, dtsMeta.extension)
+            let name = basename(file)
+            genDts(file, name.substring(0, name.lastIndexOf(".")), dtsMeta.extension)
          })
          generator!.commit(dtsMeta)
 
@@ -149,21 +159,20 @@ export function Generate(options: CommandLineOptions): void {
 
             let ldot = file.lastIndexOf(".")
 
+            var name = basename(file)
+            name = name.substring(0, name.lastIndexOf("."))
+
             if (!options.output) {
                let dir = dirname(file)
-               let name = basename(file)
-               let dotIn = name.lastIndexOf(".")
-               dtsMeta.genFile = `${dir}/${name.substring(0, dotIn)}.d.ts`
+               dtsMeta.genFile = `${dir}/${name}.d.ts`
             } else {
-               let name = basename(file)
-               let dotIn = name.lastIndexOf(".")
-               dtsMeta.genFile = `${options.output}/${name.substring(0, dotIn)}.d.ts`
+               dtsMeta.genFile = `${options.output}/${name}.d.ts`
             }
 
             dtsMeta.module = file
             dtsMeta.extension = file.substr(ldot)
 
-            genDts(file, dtsMeta.extension, dtsMeta)
+            genDts(file, name, dtsMeta.extension, dtsMeta)
 
          })
       }
