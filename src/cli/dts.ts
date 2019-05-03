@@ -3,8 +3,11 @@ import { CssDTSGenerator } from "@resmod/cli/css";
 import { readFileSync } from "fs";
 import { renderSync } from "node-sass"
 import { NameConvension, transformFileNameConvention } from "@resmod/common/convension";
-import { basename, dirname, extname } from "path";
+import { basename, dirname, extname, isAbsolute } from "path";
 import { DTSGenerator, DTSMeta, FileDtsGenerator } from "@resmod/cli/generator";
+import { VectorParseOptions } from "@resmod/vector/parser";
+import { CssParseOptions } from "@resmod/style/parser";
+import { ResourceModule } from "@resmod/webpack/loader/types";
 
 
 /**
@@ -47,7 +50,7 @@ export interface CommandLineOptions {
     * The output directory of the definition file. If not specified then
     * the definition file will generate and store at the same location as resource file.
     */
-   output: string | undefined
+   output?: string
 
    /**
     * The input data, can be a regular path or a glob syntax.
@@ -68,10 +71,26 @@ export interface CommandLineOptions {
 }
 
 /**
+ * Provide a callback when the commit to generate teh file is happened.
+ */
+export type CommitCallback = (files: string[], dtsFile: string, raw?: string, resmod?: ResourceModule) => void
+
+/** */
+interface GenData {
+   raw?: string
+   resmod?: ResourceModule
+}
+
+/**
  * Generate dts file from the given resources.
  * @param options command line optinos
  */
-export function Generate(options: CommandLineOptions): void {
+export function Generate(
+   options: CommandLineOptions,
+   svgOpts?: VectorParseOptions,
+   cssOpts?: CssParseOptions,
+   commitedCallback?: CommitCallback) {
+
    if (options.wrap) {
       if (!options.merge) {
          throw "wrap only use with merge option set to true."
@@ -84,6 +103,7 @@ export function Generate(options: CommandLineOptions): void {
    var svgGen: DTSGenerator | undefined
 
    let mdir = new Map<string, string[]>()
+   let root = `${process.cwd()}/`
 
    // group file by folder, it is simplified the merge process
    options.glob.forEach(file => {
@@ -99,28 +119,29 @@ export function Generate(options: CommandLineOptions): void {
          mdir.set(key, [file])
       }
       if (svgGen === undefined && ext === '.svg') {
-         svgGen = new SvgDTSGenerator(options)
+         svgGen = new SvgDTSGenerator(options, svgOpts)
       } else if (cssGen === undefined && (ext === '.css' || ext === '.scss' || ext === '.sass')) {
-         cssGen = new CssDTSGenerator(options)
+         cssGen = new CssDTSGenerator(options, cssOpts)
       }
    })
 
    // generate dts
-   let genDts = (file: string, name: string, ext: string, dtsMeta?: DTSMeta) => {
+   let genDts = (file: string, name: string, ext: string, dtsMeta?: DTSMeta): GenData => {
       name = transformFileNameConvention(name, options.convension)
+      let raw
       switch (ext) {
          case ".svg":
-            svgGen!.generate(readFileSync(file).toString(), name, dtsMeta)
-            break
+            raw = readFileSync(file).toString()
+            return { resmod: svgGen!.generate(raw, name, dtsMeta), raw: raw }
 
          case ".scss":
          case ".sass":
-            cssGen!.generate(renderSync({ file: file }).css.toString(), name, dtsMeta)
-            break
+            raw = renderSync({ file: file }).css.toString()
+            return { resmod: cssGen!.generate(raw, name, dtsMeta), raw: raw }
 
          case ".css":
-            cssGen!.generate(readFileSync(file).toString(), name, dtsMeta)
-            break
+            raw = readFileSync(file).toString()
+            return { resmod: cssGen!.generate(raw, name, dtsMeta), raw: raw }
 
          default:
             throw "unsupported resources"
@@ -136,6 +157,10 @@ export function Generate(options: CommandLineOptions): void {
 
          let ldot = key.lastIndexOf(".")
          dtsMeta.module = key.substring(0, ldot)
+         if (isAbsolute(dtsMeta.module)) {
+            dtsMeta.module = dtsMeta.module.replace(root, "")
+         }
+
          if (!options.output) {
             dtsMeta.genFile = `${dtsMeta.module}/${basename(key)}.d.ts`
          } else {
@@ -150,6 +175,10 @@ export function Generate(options: CommandLineOptions): void {
             let name = basename(file)
             genDts(file, name.substring(0, name.lastIndexOf(".")), dtsMeta.extension)
          })
+         // call before committed as resource module will reset after committed
+         if (commitedCallback) {
+            commitedCallback(val, dtsMeta.genFile, generator!.getMergeResource(), generator!.getResourceModule())
+         }
          generator!.commit(dtsMeta)
 
       } else {
@@ -172,7 +201,14 @@ export function Generate(options: CommandLineOptions): void {
             dtsMeta.module = file
             dtsMeta.extension = file.substr(ldot)
 
-            genDts(file, name, dtsMeta.extension, dtsMeta)
+            if (isAbsolute(dtsMeta.module)) {
+               dtsMeta.module = dtsMeta.module.replace(root, "")
+            }
+
+            let genData = genDts(file, name, dtsMeta.extension, dtsMeta)
+            if (commitedCallback) {
+               commitedCallback([file], dtsMeta.genFile, genData.raw, genData.resmod)
+            }
 
          })
       }

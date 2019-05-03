@@ -28,6 +28,35 @@ export interface VectorTestArgument<T> {
 }
 
 /**
+ * provide utilities function as helper during test phase.
+ */
+export namespace Utils {
+   /**
+    * Sleep a fashion to let current execution wait for some amount of time
+    * before it continue executed.
+    * @param ms time in millisecond
+    */
+   export function sleep(ms: number) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+   }
+
+   /**
+    * generate random name
+    * @param length length of random string
+    * @param includeTime true if time in millisecond is also included otherwise on random string would return.
+    */
+   export function randomName(length: number, includeTime: boolean = true): string {
+      var result = '';
+      var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      var chLen = chars.length;
+      for (var i = 0; i < length; i++) {
+         result += chars.charAt(Math.floor(Math.random() * chLen));
+      }
+      return includeTime ? `${result}${new Date().getTime()}` : result;
+   }
+}
+
+/**
  * Helper provide the method to read test case from the input test case file.
  */
 export namespace TestCaseHelper {

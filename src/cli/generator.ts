@@ -56,7 +56,24 @@ export abstract class DTSGenerator {
       this.commitInternal(dtsMeta)
    }
 
-   /** */
+   /**
+    * Get current stat of resource module. The resource module may change upon
+    * calling method `setResourceModule`.
+    */
+   public getResourceModule(): ResourceModule | undefined {
+      return this.resMod
+   }
+
+   /**
+    * Get current buffer 
+    */
+   public getMergeResource(): string | undefined {
+      return this.mergeBuffer
+   }
+
+   /**
+    * Check whether the current parsing option is requesting merge resources.
+    */
    protected isSaveMerge(): boolean {
       return this.options.merge === true && this.options.save !== undefined
    }
@@ -74,7 +91,7 @@ export abstract class DTSGenerator {
     * @param options command line options
     * @param dtsMeta dts metadata
     */
-   public abstract generate(raw: string, secondaryId: string, dtsMeta?: DTSMeta): void
+   public abstract generate(raw: string, secondaryId: string, dtsMeta?: DTSMeta): ResourceModule | undefined
 
    /**
     * Update existing resource if available otherwise a new resource module is created
@@ -110,6 +127,7 @@ export abstract class DTSGenerator {
          mkdirSync(dir)
       }
       writeFileSync(dtsMeta.genFile!, content)
+      this.resMod = {}
    }
 
    /** save merged content into a file with .mod.ext */
@@ -142,7 +160,7 @@ export class FileDtsGenerator extends DTSGenerator {
    }
 
    //@ts-ignore
-   public generate(raw: string, secondaryId: string, dtsMeta?: DTSMeta | undefined): void {
+   public generate(raw: string, secondaryId: string, dtsMeta?: DTSMeta | undefined): ResourceModule | undefined {
       throw new Error("Method not implemented.");
    }
 

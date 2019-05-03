@@ -1,0 +1,18 @@
+
+:root {
+   --solid-size: 60px;
+   --primary-sign: red;
+}
+
+div.sample, div.gold {
+   font-family: 'Courier New', Courier, monospace;
+}
+
+#kpop, #hulo, #scope {
+   margin: 10px;
+}
+
+#bail-out, div.release-prop {
+   color: var(--primary-sign, white);
+   font-size: var(--primary-data-size, --solid-size);
+}

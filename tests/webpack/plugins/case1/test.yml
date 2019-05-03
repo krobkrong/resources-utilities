@@ -1,0 +1,98 @@
+name: Css Dts Generator Webpack Plugin
+input:
+  - name: Normal snake convension
+    options:
+      glob: 'tests/webpack/plugins/case1/*.css'
+      options: 
+        cmd:
+          convension: "snake"
+          merge: false
+
+  - name: Cache and snake convension
+    options:
+      glob: 'tests/webpack/plugins/case1/*.css'
+      cache: true
+      options: 
+        cmd:
+          convension: "snake"
+          merge: false
+
+  - name: Cache with custom tmp folder and snake convension
+    options:
+      glob: 'tests/webpack/plugins/case1/*.css'
+      cache: true
+      tmp: 'tests/webpack/plugins/case1/tmp'
+      options: 
+        cmd:
+          convension: "snake"
+          merge: false
+
+output:
+  - file: tests/webpack/plugins/case1/style.d.ts
+    content: >-
+      declare module "tests/webpack/plugins/case1/style.css" {
+        export const solid_size: string
+        export const primary_sign: string
+        export const sample: string
+        export const gold: string
+        export const kpop: string
+        export const hulo: string
+        export const scope: string
+        export const bail_out: string
+        export const release_prop: string
+        export const primary_data_size: string
+      }
+
+  - file: tests/webpack/plugins/case1/style.d.ts
+    cache: '__TMP__/@krobkrong/resources-utilities/resources-utilities/cache/tests/webpack/plugins/case1/style.json'
+    module:
+      solid_size: --solid-size
+      primary_sign: --primary-sign
+      sample: .sample
+      gold: .gold
+      kpop: '#kpop'
+      hulo: '#hulo'
+      scope: '#scope'
+      bail_out: '#bail-out'
+      release_prop: .release-prop
+      primary_data_size: --primary-data-size
+    content: >-
+      declare module "tests/webpack/plugins/case1/style.css" {
+        export const solid_size: string
+        export const primary_sign: string
+        export const sample: string
+        export const gold: string
+        export const kpop: string
+        export const hulo: string
+        export const scope: string
+        export const bail_out: string
+        export const release_prop: string
+        export const primary_data_size: string
+      }
+
+  - file: tests/webpack/plugins/case1/style.d.ts
+    cache: 'tests/webpack/plugins/case1/tmp/tests/webpack/plugins/case1/style.json'
+    module:
+      solid_size: --solid-size
+      primary_sign: --primary-sign
+      sample: .sample
+      gold: .gold
+      kpop: '#kpop'
+      hulo: '#hulo'
+      scope: '#scope'
+      bail_out: '#bail-out'
+      release_prop: .release-prop
+      primary_data_size: --primary-data-size
+    content: >-
+      declare module "tests/webpack/plugins/case1/style.css" {
+        export const solid_size: string
+        export const primary_sign: string
+        export const sample: string
+        export const gold: string
+        export const kpop: string
+        export const hulo: string
+        export const scope: string
+        export const bail_out: string
+        export const release_prop: string
+        export const primary_data_size: string
+      }

@@ -45,9 +45,12 @@ describe("Test DTS Svg module", () => {
                   cmdOpt += ` --path ${opt.options.alias!.path}`
                }
 
-               let result = execSync(`${tsNode} ${tsConfigPathOpt} src/cli/resutil.ts ${cmdOpt} ${opt.options.glob}`)
-               expect(result).toBeTruthy()
-               expect(result.toString()).toBe("")
+               try {
+                  let result = execSync(`${tsNode} ${tsConfigPathOpt} src/cli/resutil.ts ${cmdOpt} ${opt.options.glob}`)
+                  expect(result).toBeTruthy()
+               } catch (err) {
+                  fail(err)
+               }
 
                expect(existsSync(output.file)).toBe(true)
 
@@ -104,10 +107,12 @@ describe("test merged:", () => {
                cmdOpt += " -w true"
             }
 
-            let result = execSync(`${tsNode} ${tsConfigPathOpt} src/cli/resutil.ts ${cmdOpt} ${opt.options.glob}`)
-
-            expect(result).toBeTruthy()
-            expect(result.toString()).toBe("")
+            try {
+               let result = execSync(`${tsNode} ${tsConfigPathOpt} src/cli/resutil.ts ${cmdOpt} ${opt.options.glob}`)
+               expect(result).toBeTruthy()
+            } catch (err) {
+               fail(err)
+            }
 
             expect(existsSync(output.file)).toBeTruthy()
 

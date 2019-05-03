@@ -1,0 +1,13 @@
+input:
+  - >-
+       :root { --sample-variable: red; }
+       div.info { margin: 10px }
+       div#mask { width: 100px }
+
+output:
+  - >-
+       declare module "tests/webpack/plugins/case1/{name}" {
+         export const sample_variable: string
+         export const info: string
+         export const mask: string
+       }
