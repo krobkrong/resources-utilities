@@ -30,9 +30,9 @@ export class SvgDTSGenerator extends DTSGenerator {
    }
 
    /** Overrided to close svg tag */
-   public commit(dtsMeta: DTSMeta): void {
+   public commit(dtsMeta: DTSMeta): { module: ResourceModule, rawMerge?: string } {
       this.mergeResource("</def></svg>")
-      super.commit(dtsMeta)
+      return super.commit(dtsMeta)
    }
 
    /**
@@ -48,7 +48,8 @@ export class SvgDTSGenerator extends DTSGenerator {
          if (!this.inTransaction()) {
             this.commitInternal(dtsMeta!)
             console.log(`resource: ${secondaryId}${dtsMeta!.extension} generated.`)
-         } else if (this.isSaveMerge()) {
+         } else if (this.isMerge()) {
+            // TODO: add comment merge in dev mode
             this.mergeResource(SerializeSvgResourceMetadata(resource!.metadata, secondaryId))
          }
          return module

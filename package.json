@@ -31,7 +31,8 @@
     "rework:js": "ts-node utilties/conv.ts -a resmod --js -r build",
     "clean": "rm -rf build && rm -rf dist && rm -rf coverage",
     "pre-release": "standard-version",
-    "release": "yarn publish --tag beta --access public"
+    "release": "yarn publish --tag beta --access public",
+    "test:plugin": "jest --colors --coverage --detectOpenHandles tests/webpack/plugins/css.spec.ts"
   },
   "jest": {
     "clearMocks": true,
@@ -55,7 +56,7 @@
     "babel-jest": "^24.7.1",
     "babel-preset-env": "^1.7.0",
     "glob": "^7.1.3",
-    "jest": "^24.7.1",
+    "jest": "24.8.0",
     "rimraf": "^2.6.3",
     "rollup": "^1.10.1",
     "rollup-plugin-commonjs": "^9.3.4",
@@ -71,6 +72,10 @@
     "yaml": "^1.5.0"
   },
   "dependencies": {
+    "@types/enhanced-resolve": "^3.0.6",
+    "enhanced-resolve": "^4.1.0",
+    "fstream": "^1.0.12",
+    "handlebars": "4.1.2",
     "node-sass": "^4.12.0",
     "tar": "^4.4.8",
     "webpack": "^4.30.0",

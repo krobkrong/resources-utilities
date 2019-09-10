@@ -62,6 +62,15 @@ export namespace Utils {
 export namespace TestCaseHelper {
 
    /**
+    * Read the output expectation from a yaml file
+    * @param file a yaml file format
+    */
+   export function ReadOutputExpected<R>(file: string): R {
+      let raw = readFileSync(file).toString()
+      return YAML.parse(raw) as R
+   }
+
+   /**
     * Read the test case input from a yaml file
     * @param file a yaml file format
     */

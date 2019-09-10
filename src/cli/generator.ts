@@ -1,8 +1,9 @@
 import { ResourceModule, SerializeResourceModule } from "@resmod/webpack/loader/types";
 import { CommandLineOptions } from "@resmod/cli/dts";
 import { dirname, parse, basename } from "path";
-import { existsSync, mkdirSync, writeFileSync } from "fs";
+import { existsSync, writeFileSync } from "fs";
 import { transformFileNameConvention } from "@resmod/common/convension";
+import { mkdirSyncRecursive } from "@resmod/common/file";
 
 /**
  * Provide information about typescript definition such as module and location of file.
@@ -41,7 +42,7 @@ export abstract class DTSGenerator {
     */
    public begin(): void {
       this.transaction = true
-      if (this.isSaveMerge()) {
+      if (this.isMerge()) {
          this.mergeBuffer = ""
       }
    }
@@ -51,9 +52,9 @@ export abstract class DTSGenerator {
     * It is design to be used with merge command line options.
     * @param dtsMeta dts metadata
     */
-   public commit(dtsMeta: DTSMeta): void {
+   public commit(dtsMeta: DTSMeta): { module: ResourceModule, rawMerge?: string } {
       if (this.isSaveMerge()) this.saveMergeResource(dtsMeta)
-      this.commitInternal(dtsMeta)
+      return this.commitInternal(dtsMeta)
    }
 
    /**
@@ -72,10 +73,17 @@ export abstract class DTSGenerator {
    }
 
    /**
-    * Check whether the current parsing option is requesting merge resources.
+    * Check whether the current parsing option is requesting save merge resources.
     */
    protected isSaveMerge(): boolean {
       return this.options.merge === true && this.options.save !== undefined
+   }
+
+   /**
+    * Check whether the current option is requesting merge resources.
+    */
+   protected isMerge(): boolean {
+      return this.options.merge === true
    }
 
    /**
@@ -106,7 +114,7 @@ export abstract class DTSGenerator {
     * @param s raw string resource to be merged
     */
    protected mergeResource(s: string) {
-      if (this.isSaveMerge()) {
+      if (this.isMerge()) {
          this.mergeBuffer! += s
       }
    }
@@ -115,7 +123,7 @@ export abstract class DTSGenerator {
     * finalize the parsing stage and write typescript definition code into d.ts file.
     * @param dtsMeta typescript definition metadata 
     */
-   protected commitInternal(dtsMeta: DTSMeta) {
+   protected commitInternal(dtsMeta: DTSMeta): { module: ResourceModule, rawMerge?: string } {
       var moduleName = dtsMeta.module
       if (this.options.alias) {
          moduleName = moduleName.replace(this.options.alias!.path, this.options.alias!.module)
@@ -124,10 +132,17 @@ export abstract class DTSGenerator {
       let content = `declare module "${moduleName}" {\n${SerializeResourceModule(this.resMod!)}}`
       let dir = dirname(dtsMeta.genFile!)
       if (!existsSync(dir)) {
-         mkdirSync(dir)
+         mkdirSyncRecursive(dir)
       }
       writeFileSync(dtsMeta.genFile!, content)
+      let cloneModule = Object.assign({}, this.resMod)
+      let cloneMerge = this.mergeBuffer
+
+      // reset module and merge content
       this.resMod = {}
+      this.mergeBuffer = ""
+
+      return { module: cloneModule, rawMerge: cloneMerge }
    }
 
    /** save merged content into a file with .mod.ext */
@@ -136,7 +151,7 @@ export abstract class DTSGenerator {
          `${dtsMeta.module!}/${basename(dtsMeta.module!)}.mod${dtsMeta.extension}` :
          this.options.save!
       let dir = dirname(filename)
-      if (!existsSync(dir)) mkdirSync(dir)
+      if (!existsSync(dir)) mkdirSyncRecursive(dir)
       writeFileSync(filename, this.mergeBuffer!)
    }
 

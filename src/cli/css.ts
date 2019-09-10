@@ -37,8 +37,8 @@ export class CssDTSGenerator extends DTSGenerator {
          if (!this.inTransaction()) {
             this.commitInternal(dtsMeta!)
             console.log(`resource: ${name}${dtsMeta!.extension} generated.`)
-         } else if (this.isSaveMerge()) {
-            this.mergeResource(`\n\n*** Merge ${name} ***\n\n`)
+         } else if (this.isMerge()) {
+            // TODO: add comment merge in dev mode
             this.mergeResource(resource!.metadata["raw"] as string)
          }
          return module

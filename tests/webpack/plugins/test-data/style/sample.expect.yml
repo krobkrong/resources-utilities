@@ -1,0 +1,10 @@
+module:
+  lightBackground: "--light-background"
+  menuIndex: ".menu-index"
+  dataScience: "#data-science"
+dts: >- 
+        declare module "{@module}" {
+          export const lightBackground: string
+          export const menuIndex: string
+          export const dataScience: string
+        }

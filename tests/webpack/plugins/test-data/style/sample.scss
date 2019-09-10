@@ -1,0 +1,25 @@
+$font-stack: Helvetica, sans-serif;
+$primary-color: #333;
+
+:root {
+   --light-background: #30202;
+}
+
+body {
+   font: 100% $font-stack;
+   color: var(--light-background, $primary-color);
+}
+
+nav {
+   ul.menu-index {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+   }
+}
+
+div {
+   table#data-science {
+      margin: 10px;
+   }
+}
