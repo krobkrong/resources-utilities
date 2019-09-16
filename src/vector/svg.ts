@@ -203,14 +203,16 @@ export class SvgModuleParser implements VectorParser<SvgMetadata> {
     * Create svg vector parser
     * @param options vector parse option
     */
-   constructor(options: VectorParseOptions) {
+   constructor(options: VectorParseOptions = {}) {
       this.validSvgElement = validElement()
       this.attrParser = new AttributeParser(options)
       this.includeMeta = options.includeMeta === true
    }
 
+   // TODO: include accessibility tag such as title and desc
    /**
     * parse the given raw svg data and return resource object.
+    * 
     * @param rawSvg raw svg vector
     */
    parse(rawSvg: string): Resources<ResourceModule, SvgMetadata> | undefined {
@@ -250,6 +252,22 @@ export class SvgModuleParser implements VectorParser<SvgMetadata> {
          }
       }
 
+      let appendTagToHierarchy = () => {
+         if (tag.toString().length > 0) {
+            let t = tag.toString() as SvgElementType
+            if (!tag.isLocked()) {
+               // tag that does not have attribute
+               svgMeta = appendStack(t)
+               tag.lock()
+            }
+            if (t == SvgElementType.TEXT || tag.toString() === "tspan") {
+               ctext = ""
+            } else {
+               ctext = undefined
+            }
+         }
+      }
+
       for (var index = 0; index < rawSvg.length; index++) {
          ch = rawSvg.charCodeAt(index)
 
@@ -263,6 +281,10 @@ export class SvgModuleParser implements VectorParser<SvgMetadata> {
                skipUntil = 60 // skip until <
                commentSection = false
                index += 3
+               continue
+            } else if (skipUntil == 63 && rawSvg.substr(index, 2) === '?>') { // 63 = ? character
+               skipUntil = 60 // skip until <
+               index += 2
                continue
             } else if (ctext !== undefined) {
                ctext = ctext.trim()
@@ -301,10 +323,13 @@ export class SvgModuleParser implements VectorParser<SvgMetadata> {
                }
                continue
 
-            case 47: // /
+            case 47: // ascii code = /
                // if encounter >, that mean, tag does not have child
-               if (tag.toString().length == 0 ||
-                  (index < rawSvg.length - 1 && rawSvg.charCodeAt(index + 1) != 62)) {
+               if (!tag.isEmpty() && rawSvg.charCodeAt(index + 1) == 62) {
+                  appendTagToHierarchy()
+                  tag.reset()
+                  index += 1;
+               } else if (tag.isEmpty() || (index < rawSvg.length - 1 && rawSvg.charCodeAt(index + 1) != 62)) {
                   skipUntil = 62  // skip until >
                   svgMeta = undefined
                }
@@ -312,8 +337,14 @@ export class SvgModuleParser implements VectorParser<SvgMetadata> {
                continue
 
             case 60:    // < open tag, start tracing
+               // if ? is the next character that mean it's xml prolog let skip it. We don't really care about
+               // element change in version 1.0 or 2.0. ID and Element name is all we needed.
+               if (index == 0 && rawSvg.length > 3 && rawSvg.charCodeAt(index + 1) == 63) {
+                  skipUntil = 63
+                  index += 1
+               }
                // if ! is the next character that mean this is a comment
-               if (index < rawSvg.length + 1 && rawSvg.charCodeAt(index + 1) == 33) {
+               else if (index < rawSvg.length + 1 && rawSvg.charCodeAt(index + 1) == 33) {
                   skipUntil = 45 // skip until hyphen
                   commentSection = true
                } else {
@@ -324,19 +355,7 @@ export class SvgModuleParser implements VectorParser<SvgMetadata> {
                continue
 
             case 62:    // > end of tag
-               if (tag.toString().length > 0) {
-                  let t = tag.toString() as SvgElementType
-                  if (!tag.isLocked()) {
-                     // tag that does not have attribute
-                     svgMeta = appendStack(t)
-                     tag.lock()
-                  }
-                  if (t == SvgElementType.TEXT || tag.toString() === "tspan") {
-                     ctext = ""
-                  } else {
-                     ctext = undefined
-                  }
-               }
+               appendTagToHierarchy()
                skipUntil = 60 // skip until <
                continue
 
@@ -344,7 +363,6 @@ export class SvgModuleParser implements VectorParser<SvgMetadata> {
                try {
                   tag.append(ch)
                } catch (e) {
-                  console.log(tag.toString())
                   throw e
                }
          }
@@ -491,11 +509,15 @@ export function SerializeSvgResourceMetadata(rootRM: ResourceMetadata, id?: stri
    }
 
    var isSymbolable = (svgMeta: SvgMetadata): boolean => {
-      return svgMeta.elementType !== SvgElementType.CLIP_PATH &&
-         svgMeta.elementType !== SvgElementType.DEFS &&
-         svgMeta.elementType !== SvgElementType.MASK &&
-         svgMeta.elementType !== SvgElementType.SVG &&
-         svgMeta.elementType !== SvgElementType.FILTER
+      return svgMeta.elementType == SvgElementType.CIRCLE ||
+         svgMeta.elementType == SvgElementType.RECT ||
+         svgMeta.elementType == SvgElementType.POLYGON ||
+         svgMeta.elementType == SvgElementType.POLYLINE ||
+         svgMeta.elementType == SvgElementType.ELLIPSE ||
+         svgMeta.elementType == SvgElementType.PATH ||
+         svgMeta.elementType == SvgElementType.LINE ||
+         svgMeta.elementType == SvgElementType.TEXT ||
+         svgMeta.elementType == SvgElementType.GROUP
    }
 
    var traverse: (hr: ResourceMetadata[], indent: string, level: number) => string
@@ -523,6 +545,7 @@ export function SerializeSvgResourceMetadata(rootRM: ResourceMetadata, id?: stri
             buf += `${eleBuf}`
             buf += `${indent}</symbol>\n`
          } else {
+            // TODO: check accessibility like title & desc 'description' to be properly included.
             buf += eleBuf
          }
       })

@@ -122,7 +122,7 @@ export class WebpackResourcePlugin {
       } as GeneratedMetadata
 
       if (!existsSync(filedir)) mkdirSyncRecursive(filedir)
-      console.log(`writing cache data at ${filedir}/${name}`)
+      console.debug(`writing cache data at ${filedir}/${name}`)
       writeFileSync(`${filedir}/${name}`, JSON.stringify(cacheObj))
    }
 

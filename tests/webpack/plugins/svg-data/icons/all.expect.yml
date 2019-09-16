@@ -1,0 +1,10 @@
+module:
+  circle: "circle"
+  path: "path"
+  rect: "rect"
+dts: >-
+        declare module "{@module}" {
+          export const circle: string
+          export const path: string
+          export const rect: string
+        }

@@ -2,7 +2,7 @@ import { PluginFactory } from "@resmod/webpack/plugins/factory";
 import { GeneratedMetadata } from "@resmod/webpack/plugins/plugin";
 import { ResourceModule } from "@resmod/webpack/loader/types";
 import { WebpackUtil } from "@test-helper/compiler";
-import { TestCaseHelper } from "@test-helper/helper";
+import { TestCaseHelper, Utils } from "@test-helper/helper";
 
 import webpack from "webpack"
 import { relative, extname, basename } from "path";
@@ -29,7 +29,7 @@ let files = ["main", "custom", "sample"]
 let exts = ["css", "sass", "scss"]
 let fileEntry = `${__dirname}/test-data/index.js`
 
-describe("Test Plugin for Css resource", () => {
+describe("Test Style Plugin resource", () => {
 
    afterAll(() => {
       let gl = new GlobSync(`${__dirname}/out/**/*.d.ts`)
@@ -38,16 +38,11 @@ describe("Test Plugin for Css resource", () => {
       })
       rmdirSync(`${__dirname}/out/dts`)
       rmdirSync(`${__dirname}/out`)
+
+      Utils.removeDir(`${__dirname}/test-data/css-tmp`)
    })
 
-   test("Default (No merge, no output, no custom temporary folder)", async () => {
-
-      let plugin = PluginFactory.getPlugins({
-         glob: `${__dirname}/test-data/style/*.{css,scss,sass}`
-      })
-
-      let stats = await WebpackUtil.run(fileEntry, moduleRules, [plugin], [plugin]);
-
+   let verifyResult = (stats: webpack.Stats) => {
       expect(stats.toJson().modules).toBeTruthy()
       stats.toJson().modules!.forEach((mod: any) => {
          let name = mod.name as string
@@ -85,6 +80,16 @@ describe("Test Plugin for Css resource", () => {
          expect(cache.resModule).toBeTruthy()
          expect(cache.resModule).toStrictEqual(output.module)
       })
+   }
+
+   test("Default (No merge, no output, no custom temporary folder)", async () => {
+
+      let plugin = PluginFactory.getPlugins({
+         glob: `${__dirname}/test-data/style/*.{css,scss,sass}`
+      })
+
+      let stats = await WebpackUtil.run(fileEntry, moduleRules, [plugin], [plugin])
+      verifyResult(stats)
    })
 
    test("Output Directory", async () => {
@@ -93,7 +98,7 @@ describe("Test Plugin for Css resource", () => {
          output: `${__dirname}/out/dts`
       })
 
-      await WebpackUtil.run(fileEntry, moduleRules, [plugin], [plugin]);
+      await WebpackUtil.run(fileEntry, moduleRules, [plugin], [plugin])
 
       let dtsDir = `${__dirname}/out/dts`
       files.forEach((style, i) => {
@@ -112,9 +117,10 @@ describe("Test Plugin for Css resource", () => {
       })
 
       let stats = await WebpackUtil.run(`${__dirname}/test-data/index.merge.js`, moduleRules, [plugin], [plugin]);
+      let modules = stats.toJson().modules
 
-      expect(stats.toJson().modules).toBeTruthy()
-      stats.toJson().modules!.forEach((mod: any) => {
+      expect(modules).toBeTruthy()
+      modules!.forEach((mod: any) => {
          let name = basename(mod.name)
          if (name === "style.d.json") {
             let result = JSON.parse(mod.source) as GeneratedMetadata
@@ -155,8 +161,7 @@ describe("Test Plugin for Css resource", () => {
       })
   
       let stats = await WebpackUtil.run(`${__dirname}/test-data/index.js`, moduleRules, [plugin], [plugin]);
-      console.log(stats)
-
+      verifyResult(stats)
    })
 
 })

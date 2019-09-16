@@ -18,6 +18,7 @@ export enum SvgElementType {
    CLIP_PATH = "clippath",
    GROUP = "g",
    DEFS = "defs",
+   SYMBOL = "symbol",
    // graphical geomery
    TEXT = "text",
    RECT = "rect",

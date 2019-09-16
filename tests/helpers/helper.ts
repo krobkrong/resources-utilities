@@ -1,4 +1,4 @@
-import { readFileSync } from "fs";
+import { readFileSync, existsSync, readdirSync, PathLike, lstatSync, unlinkSync, rmdirSync } from "fs";
 import YAML from 'yaml'
 
 /**
@@ -53,6 +53,20 @@ export namespace Utils {
          result += chars.charAt(Math.floor(Math.random() * chLen));
       }
       return includeTime ? `${result}${new Date().getTime()}` : result;
+   }
+
+   export function removeDir(dir: PathLike) {
+      if (existsSync(dir)) {
+         readdirSync(dir).forEach(function (file, _) {
+            var curPath = dir + "/" + file;
+            if (lstatSync(curPath).isDirectory()) { // recurse
+               removeDir(curPath);
+            } else { // delete file
+               unlinkSync(curPath);
+            }
+         });
+         rmdirSync(dir);
+      }
    }
 }
 

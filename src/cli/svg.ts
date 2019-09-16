@@ -47,14 +47,14 @@ export class SvgDTSGenerator extends DTSGenerator {
          let module = this.getResourceModule()
          if (!this.inTransaction()) {
             this.commitInternal(dtsMeta!)
-            console.log(`resource: ${secondaryId}${dtsMeta!.extension} generated.`)
+            console.debug(`resource: ${secondaryId}${dtsMeta!.extension} generated.`)
          } else if (this.isMerge()) {
             // TODO: add comment merge in dev mode
             this.mergeResource(SerializeSvgResourceMetadata(resource!.metadata, secondaryId))
          }
          return module
       } else {
-         console.log('Warning: svg resource does not contain any id')
+         console.warn('Warning: svg resource does not contain any id')
          return undefined
       }
    }

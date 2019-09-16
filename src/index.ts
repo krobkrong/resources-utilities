@@ -40,7 +40,7 @@ export {
    ResourceModule,
    ResourceMetadata,
    SerializeResourceModule
-} from "@resmod/loader/types"
+} from "@resmod/webpack/loader/types"
 
 export {
    DTSMeta,

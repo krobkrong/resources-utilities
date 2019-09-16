@@ -32,7 +32,7 @@
     "clean": "rm -rf build && rm -rf dist && rm -rf coverage",
     "pre-release": "standard-version",
     "release": "yarn publish --tag beta --access public",
-    "test:plugin": "jest --colors --coverage --detectOpenHandles tests/webpack/plugins/css.spec.ts"
+    "test:plugin": "jest --colors --coverage --detectOpenHandles tests/webpack/plugins/svg.spec.ts"
   },
   "jest": {
     "clearMocks": true,
@@ -50,7 +50,7 @@
     "@types/node": "^11.13.2",
     "@types/node-sass": "^4.11.0",
     "@types/rimraf": "^2.0.2",
-    "@types/webpack": "^4.4.29",
+    "@types/webpack": "^4.39.1",
     "@types/yaml": "^1.0.2",
     "@types/yargs": "^13.0.0",
     "babel-jest": "^24.7.1",
@@ -78,7 +78,7 @@
     "handlebars": "4.1.2",
     "node-sass": "^4.12.0",
     "tar": "^4.4.8",
-    "webpack": "^4.30.0",
+    "webpack": "^4.39.3",
     "yargs": "^13.2.2"
   }
 }
