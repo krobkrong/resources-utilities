@@ -1,0 +1,27 @@
+{
+  "name": "www",
+  "version": "1.0.0",
+  "description": "Simple Loader Tester",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "start:js": "webpack-dev-server --config ./webpack.config.js --mode development",
+    "start:js:merge": "webpack-dev-server --config ./webpack.config.merge.js --mode development",
+    "start:ts": "webpack-dev-server --config ./webpack.config.ts --mode development",
+    "start:ts:merge": "webpack-dev-server --config ./webpack.config.merge.ts --mode development"
+  },
+  "devDependencies": {
+    "@krobkrong/resources-utilities": "^0.1.7",
+    "@types/node": "^12.7.5",
+    "@types/webpack": "^4.39.1",
+    "@types/webpack-dev-server": "^3.1.7",
+    "ts-loader": "^6.1.2",
+    "typescript": "^3.6.3",
+    "webpack": "^4.40.2",
+    "webpack-cli": "^3.3.9",
+    "webpack-dev-server": "^3.8.1"
+  },
+  "dependencies": {}
+}

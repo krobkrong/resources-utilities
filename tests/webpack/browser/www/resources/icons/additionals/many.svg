@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="10px" height="12px" viewBox="0 0 10 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 56.3 (81716) - https://sketch.com -->
+    <title>many</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Artboard" transform="translate(-51.000000, -12.000000)" fill="#000000" fill-rule="nonzero">
+            <g id="relation" transform="translate(51.000000, 12.000000)">
+                <path d="M2.4535732,5.00554156 L10,5.00554156 L10,6.9438914 L2.4535732,6.9438914 C2.91994337,8.34214704 4.18062741,9.98949537 5.65246946,9.98949537 L10,9.98949537 L10,12 L5.65246946,12 C2.53230632,12 0,9.312 0,6 C0,2.688 2.53230632,0 5.65246946,0 L10,0 L10,1.9446714 L5.65246946,1.9446714 C4.16445807,1.9446714 2.90735161,3.58334584 2.4535732,5.00554156 Z" id="Path"></path>
+            </g>
+        </g>
+    </g>
+</svg>

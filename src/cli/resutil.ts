@@ -2,6 +2,7 @@
 
 import * as yargs from 'yargs'
 import { CommandLineOptions, Generate } from './dts';
+import { resolve } from 'path';
 
 var argv = yargs.scriptName("resmod")
    .usage("\n$0 [-o directory] resources/**/*.*")
@@ -38,12 +39,10 @@ if (argv._.length == 0) {
 }
 
 // create alias object if any
-let alias
+let alias: {[index: string]: string | undefined} | undefined
 if (argv["mod"] && argv["path"]) {
-   alias = {
-      module: argv["mod"],
-      path: argv["path"]
-   }
+   alias = {}
+   alias[resolve(argv.path)] = argv.mod
 } else {
    alias = undefined
 }

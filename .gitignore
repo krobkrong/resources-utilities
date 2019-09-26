@@ -65,7 +65,17 @@ typings/
 
 # build debugging
 build
-dist
+/dist
+
+.DS_Store
 
 # ignore generate file by the test
 tests/cli/*.d.ts
+
+# ignore test driver & webpack loader with selenium
+tests/webpack/browser/drivers
+tests/webpack/browser/www/node_modules
+tests/webpack/browser/www/dist/*.js
+tests/webpack/browser/www/src/@types
+tests/webpack/browser/www/resources/styles/*.d.js
+tests/webpack/browser/www/resources/icons/*.d.js

@@ -1,0 +1,6 @@
+{
+    "extends": "./tsconfig",
+    "files": [
+      "src/index-merge.ts"
+    ]
+}

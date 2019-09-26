@@ -1,7 +1,9 @@
-[![npm][npm]][npm-url]
+[![npm][npm-beta]][npm-url]
+[![npm][npm-latest]][npm-url]
 [![test][test]][test-url]
 [![coverage][cover]][cover-url]
 [![node-sass][node-sass-version]][node-sass-version]
+[![webpack][webpack-version]][webpack-version]
 
 # resources-utilities
 A command line and library to generate typescript definition file from CSS, SASS, SCSS or SVG file.
@@ -52,7 +54,8 @@ let resource = StyleUtils.parse(raw, {
 })
 ```
 
-[npm]: https://img.shields.io/npm/v/@krobkrong/resources-utilities/beta.svg
+[npm-beta]: https://img.shields.io/npm/v/@krobkrong/resources-utilities/beta.svg
+[npm-latest]: https://img.shields.io/npm/v/@krobkrong/resources-utilities/latest.svg
 [npm-url]: https://www.npmjs.com/package/@krobkrong/resources-utilities
 
 [test]: https://circleci.com/gh/krobkrong/resources-utilities.svg?style=svg
@@ -62,3 +65,5 @@ let resource = StyleUtils.parse(raw, {
 [cover-url]: https://codecov.io/gh/krobkrong/resources-utilities
 
 [node-sass-version]: https://img.shields.io/github/package-json/dependency-version/krobkrong/resources-utilities/node-sass.svg
+
+[webpack-version]: https://img.shields.io/github/package-json/dependency-version/krobkrong/resources-utilities/webpack.svg

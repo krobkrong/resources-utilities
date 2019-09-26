@@ -19,12 +19,12 @@ output:
    --global-margin: 16px;
 }
 
-div.test-page {
+div.test-page:hover {
    margin: var(--global-margin);
    color: var(--dark-purple, --simple-color);
 }
 
-#melody {
+#melody:hover {
    width: 50px;
    height: 10px;
 }

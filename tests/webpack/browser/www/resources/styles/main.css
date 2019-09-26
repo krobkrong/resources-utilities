@@ -1,0 +1,15 @@
+:root {
+   --sample-color: red;
+}
+
+html, body {
+   color: var(--sample-color);
+}
+
+div.data-input {
+   margin: 10px;
+}
+
+#potato {
+   padding: 10px;
+}

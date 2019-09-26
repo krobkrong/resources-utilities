@@ -1,8 +1,7 @@
 import { CommandLineOptions } from "@resmod/cli/dts";
 import { VectorUtils, VectorParseOptions } from "@resmod/vector/parser";
-import { DTSGenerator, DTSMeta } from "@resmod/cli/generator";
+import { DTSGenerator, DTSMeta, GeneratedResult } from "@resmod/cli/generator";
 import { SerializeSvgResourceMetadata } from "@resmod/vector/svg";
-import { ResourceModule } from "@resmod/webpack/loader/types";
 
 /**
  * A class that generate typescript definition from the given raw svg vector.
@@ -30,9 +29,9 @@ export class SvgDTSGenerator extends DTSGenerator {
    }
 
    /** Overrided to close svg tag */
-   public commit(dtsMeta: DTSMeta): void {
+   public commit(dtsMeta: DTSMeta): GeneratedResult {
       this.mergeResource("</def></svg>")
-      super.commit(dtsMeta)
+      return super.commit(dtsMeta)
    }
 
    /**
@@ -40,20 +39,26 @@ export class SvgDTSGenerator extends DTSGenerator {
     * @param raw raw svg vector
     * @param dtsMeta an optional typescript definition metadata
     */
-   generate(raw: string, secondaryId: string, dtsMeta?: DTSMeta): ResourceModule | undefined {
+   doGenerate(raw: string, secondaryId: string, useSecondary: boolean = false, dtsMeta?: DTSMeta): GeneratedResult | undefined {
       let resource = VectorUtils.parse(raw, this.svgOpts)
+      let serializeRaw: string = ""
       if (resource) {
          this.setResourceModule(resource!.resourceModule)
-         let module = this.getResourceModule()
+         let combindModule = this.getResourceModule()
          if (!this.inTransaction()) {
-            this.commitInternal(dtsMeta!)
-            console.log(`resource: ${secondaryId}${dtsMeta!.extension} generated.`)
-         } else if (this.isSaveMerge()) {
-            this.mergeResource(SerializeSvgResourceMetadata(resource!.metadata, secondaryId))
+            console.debug(`resource: ${dtsMeta!.genFile} generated.`)
+            return this.commitInternal(dtsMeta!)
+         } else if (this.isMerge()) {
+            serializeRaw = SerializeSvgResourceMetadata(resource!.metadata, {
+               merge: this.isMerge(),
+               id: secondaryId,
+               useGivenId: useSecondary
+            })
+            this.mergeResource(serializeRaw)
          }
-         return module
+         return { resModule: combindModule, raw: serializeRaw }
       } else {
-         console.log('Warning: svg resource does not contain any id')
+         console.warn('Warning: svg resource does not contain any id')
          return undefined
       }
    }

@@ -27,13 +27,13 @@
       ],
       "@test-helper/*": [
         "tests/helpers/*"
-      ],
+      ]
     }
   },
   "include": [
     "src/**/*.ts",
     "tests/**/*.spec.ts",
-    "tests/helpers/*.ts",
+    "tests/helpers/*.ts"
   ],
   "exclude": [
     "node_modules", "build"

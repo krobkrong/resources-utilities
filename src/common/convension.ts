@@ -223,6 +223,13 @@ export class RawValue {
    }
 
    /**
+    * return true if there is not tag being traced
+    */
+   public isEmpty(): boolean {
+      return this.name.length == 0
+   }
+
+   /**
     * return a raw string than a transform version. If the transform character is
     * not given then `rawString` will return the same value as `toString`
     */

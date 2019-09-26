@@ -9,3 +9,5 @@ utilties
 .vscode
 .circleci
 rollup.config.ts
+tsconfig.json
+tsconfig.build.json

@@ -1,5 +1,6 @@
 import { readFileSync } from "fs";
-import { dirname, resolve } from "path";
+import { dirname, resolve, relative } from "path";
+import { basename } from "upath";
 
 
 export class JSReplacement {
@@ -12,24 +13,23 @@ export class JSReplacement {
       JSReplacement.file = file
       let buf = readFileSync(file).toString()
       let regex = new RegExp(`(require\\(")\\@${alias}(.*"\\);)`, "gm")
-      return buf.replace(regex, JSReplacement.replacer)
+      let mm = buf.replace(regex, JSReplacement.replacer)
+      return mm
    }
 
    public static replacer(_: string, prefix: string, path: string): string {
-      let rep: string
-
       let dir = resolve(dirname(JSReplacement.file))
       if (JSReplacement.root === dir) {
-         rep = "."
-      } else if (`${JSReplacement.root}${dirname(path)}` === dir) {
-         rep = "."
-         let slash = path.indexOf("/", 1)
-         path = path.substr(slash)
-      } else {
-         rep = ".."
-      }
+         return `${prefix}.${path}`
 
-      return `${prefix}${rep}${path}`
+      } else if (`${JSReplacement.root}${dirname(path)}` === dir) {
+         // reside in the same fullder
+         path = basename(path)
+         return `${prefix}./${path}`
+      } else {
+         path = relative(dir, `${JSReplacement.root}${path}`)
+         return `${prefix}${path}`
+      }
    }
 
 }
