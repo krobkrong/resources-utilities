@@ -4,7 +4,7 @@ import { readFileSync } from "fs";
 import { renderSync } from "node-sass"
 import { NameConvension, transformFileNameConvention } from "@resmod/common/convension";
 import { basename, dirname, extname, isAbsolute } from "path";
-import { DTSGenerator, DTSMeta, FileDtsGenerator } from "@resmod/cli/generator";
+import { DTSGenerator, DTSMeta, FileDtsGenerator, GeneratedResult } from "@resmod/cli/generator";
 import { VectorParseOptions } from "@resmod/vector/parser";
 import { CssParseOptions } from "@resmod/style/parser";
 import { ResourceModule } from "@resmod/webpack/loader/types";
@@ -65,12 +65,6 @@ export interface CommandLineOptions {
  */
 export type CommitCallback = (files: string[], dtsFile: string, raw?: string, resmod?: ResourceModule) => void
 
-/** */
-interface GenData {
-   raw?: string
-   resmod?: ResourceModule
-}
-
 /**
  * Generate dts file from the given resources.
  * @param options command line optinos
@@ -116,22 +110,22 @@ export function Generate(
    })
 
    // generate dts
-   let genDts = (file: string, name: string, ext: string, dtsMeta?: DTSMeta): GenData => {
+   let genDts = (file: string, name: string, ext: string, dtsMeta?: DTSMeta): GeneratedResult => {
       name = transformFileNameConvention(name, options.convension)
       let raw
       switch (ext) {
          case ".svg":
             raw = readFileSync(file).toString()
-            return { resmod: svgGen!.generate(raw, name, options.wrap, dtsMeta), raw: raw }
+            return svgGen!.generate(raw, name, options.wrap, dtsMeta)!
 
          case ".scss":
          case ".sass":
             raw = renderSync({ file: file }).css.toString()
-            return { resmod: cssGen!.generate(raw, name, false, dtsMeta), raw: raw }
+            return cssGen!.generate(raw, name, false, dtsMeta)!
 
          case ".css":
             raw = readFileSync(file).toString()
-            return { resmod: cssGen!.generate(raw, name, false, dtsMeta), raw: raw }
+            return cssGen!.generate(raw, name, false, dtsMeta)!
 
          default:
             throw "unsupported resources"
@@ -197,7 +191,7 @@ export function Generate(
 
             let genData = genDts(file, name, dtsMeta.extension, dtsMeta)
             if (commitedCallback) {
-               commitedCallback([file], dtsMeta.genFile, genData.raw, genData.resmod)
+               commitedCallback([file], dtsMeta.genFile, genData.raw, genData.resModule)
             }
 
          })

@@ -37,9 +37,7 @@ describe("Test SVG Plugin resource", () => {
         stats.toJson().modules!.forEach((mod: any) => {
             let name = basename(mod.name as string)
             let ext = extname(name)
-            if (ext == "js" && existsSync(`${__dirname}/svg-data/icons/${name.substring(0, name.lastIndexOf("."))}`)) {
-                // test json generated
-            } else if (ext == "svg") {
+            if (ext == "js") {
                 let index = name.indexOf(".")
                 let filename = name.substring(0, index)
                 let result = eval(mod.source) as ResourceModule

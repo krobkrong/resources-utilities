@@ -1,7 +1,6 @@
 import { CommandLineOptions } from "@resmod/cli/dts";
 import { StyleUtils, CssParseOptions } from "@resmod/style/parser";
-import { DTSGenerator, DTSMeta } from "@resmod/cli/generator";
-import { ResourceModule } from "@resmod/webpack/loader/types";
+import { DTSGenerator, DTSMeta, GeneratedResult } from "@resmod/cli/generator";
 
 /**
  * A class that generate typescript definition from the given raw css stylesheet.
@@ -29,19 +28,18 @@ export class CssDTSGenerator extends DTSGenerator {
     * @param raw raw css stylesheet
     * @param dtsMeta an optional typescript definition metadata.
     */
-   generate(raw: string, name: string, _?: boolean, dtsMeta?: DTSMeta): ResourceModule | undefined {
+   doGenerate(raw: string, name: string, _?: boolean, dtsMeta?: DTSMeta): GeneratedResult | undefined {
       let resource = StyleUtils.parse(raw, this.cssOpts)
       if (resource) {
          this.setResourceModule(resource!.resourceModule)
-         let module = this.getResourceModule()
+         let combindModule = this.getResourceModule()
          if (!this.inTransaction()) {
-            this.commitInternal(dtsMeta!)
             console.log(`resource: ${name}${dtsMeta!.extension} generated.`)
+            return this.commitInternal(dtsMeta!)
          } else if (this.isMerge()) {
-            // TODO: add comment merge in dev mode
             this.mergeResource(resource!.metadata["raw"] as string)
          }
-         return module
+         return { resModule: combindModule, raw: resource!.metadata["raw"] as string }
       } else {
          console.log(`Warning: resource does not contain any id, class or variable.`)
          return undefined

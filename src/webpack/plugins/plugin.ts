@@ -1,7 +1,7 @@
 import { DtsGeneratorOptions, ResourceFiles, PluginFactory } from "@resmod/webpack/plugins/factory";
 import { CssDTSGenerator } from "@resmod/cli/css";
 import { SvgDTSGenerator } from "@resmod/cli/svg";
-import { DTSGenerator, DTSMeta } from "@resmod/cli/generator";
+import { DTSGenerator, DTSMeta, GeneratedResult } from "@resmod/cli/generator";
 import { ResourceModule } from "@resmod/webpack/loader/types";
 import { ExtResolver } from "@resmod/types/webpack";
 import { transformFileNameConvention } from "@resmod/common/convension";
@@ -16,13 +16,15 @@ import { ResolverRequest, LoggingCallbackTools, LoggingCallbackWrapper } from "e
 import { basename, resolve, dirname, extname, relative } from "path";
 import { tmpdir } from "os";
 import { GlobSync } from "glob";
+import { CommandLineOptions } from "@resmod/cli/dts";
 
 /**
  * 
  */
 interface SessionCache {
-   modified: number
-   resModule?: ResourceModule
+   modified?: number
+   result?: GeneratedResult
+   files?: string[]
 }
 
 /**
@@ -91,6 +93,7 @@ export class WebpackResourcePlugin {
          } : undefined)
       }
       return (await this.svgo!.optimize(content).catch(e => {
+         console.log("--???--", content)
          throw `Plugin svg optimization error: ${e}`
       })).data;
    }
@@ -220,10 +223,11 @@ export class WebpackResourcePlugin {
       if (generator === undefined) {
          let opts = {
             merge: merge,
+            wrap: this.options.mergeFilenameAsId,
             glob: [],
             convension: this.options.convension!,
             alias: this.reverseAlias
-         }
+         } as CommandLineOptions
          generator = ext === ".svg" ? new SvgDTSGenerator(opts) : new CssDTSGenerator(opts)
          this.generator.set(ext, generator)
       }
@@ -244,39 +248,71 @@ export class WebpackResourcePlugin {
          }
       }
 
-      let generateDts = (file: string) => {
+      let generateDts = (file: string, cacheResult?: GeneratedResult | undefined): GeneratedResult => {
          let name = basename(file)
          name = transformFileNameConvention(name.substring(0, name.lastIndexOf(".")), this.options.convension!)
          let dtsMeta = dtsMetaFile(file)
 
-         let result, raw
          let ext = extname(file)
-         if (ext === ".scss" || ext === ".sass") {
-            raw = renderSync({ file: file }).css.toString()
-            result = this.getGenerator(ext, merge).generate(raw, name, false, dtsMeta)
+         if (!cacheResult) {
+            if (ext === ".scss" || ext === ".sass") {
+               cacheResult = this.getGenerator(ext, merge)
+                  .generate(renderSync({ file: file }).css.toString(), name, false, dtsMeta)
+            } else {
+               cacheResult = this.getGenerator(ext, merge)
+                  .generate(readFileSync(file).toString(), name, this.options.mergeFilenameAsId, dtsMeta)
+            }
          } else {
-            raw = readFileSync(file).toString()
-            result = this.getGenerator(ext, merge).generate(raw, name, this.options.mergeFilenameAsId, dtsMeta)
+            this.getGenerator(ext, merge).populateCache(cacheResult!)
          }
 
-         if (!merge && result) {
-            this.cacheHandler([file], dtsMeta!.genFile, dir, raw, result)
+         if (!merge && cacheResult) {
+            this.cacheHandler([file], dtsMeta!.genFile, dir, cacheResult!.raw, cacheResult!.resModule)
          }
+         return cacheResult!
       }
 
       let hasChanged = false
+      if (this.options.verifyChange === "date") {
+         if (this.session.get(dir) === undefined) {
+            this.session.set(dir, { files: files });
+         } else if (this.session.get(dir)!.files!.length !== files.length) {
+            // a file has been remove
+            this.session.get(dir)!.files!.forEach(file => {
+               if (files.indexOf(file) < 0) {
+                  // file is removed
+                  this.session.delete(file);
+                  hasChanged = true
+               }
+            });
+            this.session.get(dir)!.files = files;
+         }
+         for (let file of files) {
+            // verify if file has changed
+            let stats = statSync(file)
+            if (this.session.get(file) === undefined ||
+               this.session.get(file)!.modified !== stats.mtime.getTime()) {
+               hasChanged = true;
+               // invalidate cache
+               this.session.delete(file);
+               break
+            }
+         }
+         if (!hasChanged) return;
+      }
+
+
       files.forEach(file => {
          if (this.options.verifyChange === "date") {
-            let stats = statSync(file)
-            // verify if file has changed
-            if (this.session.get(file) !== undefined &&
-               this.session.get(file)!.modified === stats.mtime.getTime()) {
+            if (this.session.get(file) !== undefined) {
+               // only merge need to update the combine generated code
+               if (!merge) throw "only merge suppose to be here"
+               generateDts(file, this.session.get(file)!.result)
                return
             } else {
-               generateDts(file)
                this.session.set(file, {
-                  modified: stats.mtime.getTime(),
-                  resModule: this.getGenerator(ext, merge).getResourceModule()
+                  modified: statSync(file).mtime.getTime(),
+                  result: generateDts(file)
                })
                hasChanged = true
             }
@@ -290,7 +326,7 @@ export class WebpackResourcePlugin {
       if (merge && hasChanged) {
          let dtsMeta = this.createDtsMeta(dir, basename(dir), true)
          let result = this.getGenerator(ext, merge).commit(dtsMeta)
-         this.cacheHandler(files, dtsMeta.genFile, dir, result.rawMerge, result.module)
+         this.cacheHandler(files, dtsMeta.genFile, dir, result.raw, result.resModule)
       }
    }
 
@@ -356,6 +392,7 @@ export class WebpackResourcePlugin {
       // generate dts file before webpack compiled
       compiler.hooks.beforeCompile.tap("WebpackResourcePlugin", (_: {}) => {
          this.resFiles = PluginFactory.getResourcesFiles(this.options.glob, this.options.merge)
+
          Object.keys(this.resFiles).forEach(dir => {
             let exts = Object.keys(this.resFiles[dir].extension)
             if (this.resFiles[dir].merge) {

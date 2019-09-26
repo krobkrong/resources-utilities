@@ -41,9 +41,6 @@ describe("parser: CSS Module", () => {
          testOptoins.forEach((testOption, optIndex) => {
 
             test(`Options: #${optIndex + 1} (${testOption.name})`, () => {
-               if (testOption.name === "snake case with All lowercase") {
-                  console.log(123)
-               }
                let elements = StyleUtils.parse(input.rawCss, testOption.options)
                if (output.modules[optIndex] !== undefined && output.modules[optIndex] !== null) {
                   expect(elements).toBeTruthy()
