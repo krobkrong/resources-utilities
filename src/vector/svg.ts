@@ -482,7 +482,7 @@ function prefix(convension: NameConvension): Prefix {
  * @param rm a resource metadata
  * @param tab space to use as indent
  */
-export function SerializeSvgResourceMetadata(rootRM: ResourceMetadata, id?: string, skipSvg: boolean = true, tab: string = "  "): string {
+export function SerializeSvgResourceMetadata(rootRM: ResourceMetadata, merge?: boolean, id?: string, skipSvg: boolean = true, tab: string = "  "): string {
    let hierarchies: ResourceMetadata[]
    let wrapInSymbol: boolean
    if (skipSvg && (rootRM as SvgMetadata).childs) {
@@ -500,7 +500,7 @@ export function SerializeSvgResourceMetadata(rootRM: ResourceMetadata, id?: stri
          if (key === "ctext" || key === "name" || key === "childs" || key === "raw" || key === "elementType") {
             return
          }
-         if (ignoreId && key === "id") {
+         if ((ignoreId || merge) && key === "id") {
             return
          }
          buf += ` ${key}="${rm[key]}"`
@@ -537,7 +537,7 @@ export function SerializeSvgResourceMetadata(rootRM: ResourceMetadata, id?: stri
          } else if (svgMeta.ctext !== undefined) {
             eleBuf += `>${svgMeta.ctext!}</${svgMeta.name}>\n`
          } else {
-            eleBuf += "/>\n"
+            eleBuf += `></${svgMeta.name}>\n`
          }
 
          if (wrap && isSymbolable(svgMeta)) {

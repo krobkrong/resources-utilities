@@ -28,7 +28,7 @@ describe("Test DTS CSS module", () => {
          testCase.input.testOptions.forEach((opt, optInd) => {
 
             let output = testCase.output.byOptions[optInd]
-            test(`${opt.name} #${optInd}`, () => {
+            test(`${opt.name} #${optInd}`, async () => {
 
                var cmdOpt = ""
                if (opt.options.merge) {
@@ -41,12 +41,14 @@ describe("Test DTS CSS module", () => {
                   cmdOpt += ` -n ${opt.options.convension}`
                }
                if (opt.options.alias) {
-                  cmdOpt += ` --mod ${opt.options.alias!.module}`
-                  cmdOpt += ` --path ${opt.options.alias!.path}`
+                  for (let module of Object.keys(opt.options.alias)) {
+                     cmdOpt += ` --mod ${module}`
+                     cmdOpt += ` --path ${opt.options.alias![module]}`
+                  }
                }
 
                try {
-                  let result = execSync(`${tsNode} ${tsConfigPathOpt} src/cli/resutil.ts ${cmdOpt} ${opt.options.glob}`)
+                  let result = execSync(`${tsNode} ${tsConfigPathOpt} --transpile-only src/cli/resutil.ts ${cmdOpt} ${opt.options.glob}`)
                   expect(result).toBeTruthy()
                } catch (err) {
                   fail(err)
@@ -73,7 +75,7 @@ describe("Test DTS CSS module", () => {
       testCase.input.testOptions.forEach((opt, optInd) => {
 
          let output = testCase.output.byOptions[optInd]
-         test(`${opt.name} case: #${optInd + 1}`, () => {
+         test(`${opt.name} case: #${optInd + 1}`, async () => {
 
             var cmdOpt = ""
             if (opt.options.merge) {
@@ -86,12 +88,14 @@ describe("Test DTS CSS module", () => {
                cmdOpt += ` -n ${opt.options.convension}`
             }
             if (opt.options.alias) {
-               cmdOpt += ` --mod ${opt.options.alias!.module}`
-               cmdOpt += ` --path ${opt.options.alias!.path}`
+               for (let module of Object.keys(opt.options.alias)) {
+                  cmdOpt += ` --mod ${module}`
+                  cmdOpt += ` --path ${opt.options.alias![module]}`
+               }
             }
 
             try {
-               let result = execSync(`${tsNode} ${tsConfigPathOpt} src/cli/resutil.ts ${cmdOpt} ${opt.options.glob}`)
+               let result = execSync(`${tsNode} ${tsConfigPathOpt} --transpile-only src/cli/resutil.ts ${cmdOpt} ${opt.options.glob}`)
                expect(result).toBeTruthy()
             } catch (err) {
                fail(err)

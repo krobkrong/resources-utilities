@@ -7,15 +7,14 @@ import { ExtResolver } from "@resmod/types/webpack";
 import { transformFileNameConvention } from "@resmod/common/convension";
 import { mkdirSyncRecursive } from "@resmod/common/file";
 
-import { statSync, readFileSync, existsSync, writeFileSync } from "fs";
+import { statSync, readFileSync, existsSync, writeFileSync, realpathSync, mkdirSync, rmdirSync, readdirSync, lstatSync, unlinkSync } from "fs";
 import webpack from "webpack";
+import SVGO from "svgo";
 import { renderSync } from "node-sass";
 
 import { ResolverRequest, LoggingCallbackTools, LoggingCallbackWrapper } from "enhanced-resolve/lib/common-types";
 import { basename, resolve, dirname, extname, relative } from "path";
 import { tmpdir } from "os";
-
-
 
 /**
  * 
@@ -49,6 +48,9 @@ export class WebpackResourcePlugin {
    protected root: string
    protected pkg: string
 
+   protected output?: webpack.Output
+   protected svgo?: SVGO
+
    constructor(options: DtsGeneratorOptions) {
       this.options = options
       this.session = new Map()
@@ -69,6 +71,69 @@ export class WebpackResourcePlugin {
          this.applyWebpackPlugin(pluginContext as webpack.Compiler)
       }
 
+   }
+
+   /** */
+   private getTemporaryCacheDirectory(): string {
+      return this.options.tmp ? resolve(this.options.tmp) : `${realpathSync(tmpdir())}/${this.pkg}/resources-utilities/cache`
+   }
+
+   /** */
+   private getInjectFileType(content: string, cacheObj: GeneratedMetadata): string {
+      if (process.env.NODE_ENV !== 'production' && !this.options.excludeInject) {
+         if (this.options.glob.endsWith(".svg")) {
+            return `
+            let div = document.createElement('div');
+            div.innerHTML = \`${content}\`;
+            let svg = div.children[0];
+            document.body.appendChild(svg);
+            var att = document.createAttribute("display");
+            att.value = "none";
+            svg.setAttributeNode(att);           
+         `
+         } else {
+            // expect css, scss, sass here
+            return `
+            let style = document.createElement('style');
+            style.type = 'text/css';
+            document.head.appendChild(style);
+            style.appendChild(document.createTextNode(\`${content}\`));
+         `
+         }
+      } else {
+         // we're in production
+         let bundleDir = this.output!.path
+         let name: string
+         if (this.options.merge) {
+            name = relative(process.cwd(), dirname(cacheObj.files[0]))
+         } else {
+            name = relative(process.cwd(), cacheObj.files[0])
+            name = name.substring(0, name.lastIndexOf("."))
+         }
+
+         let saveFile = (file: string, content: string) => {
+            mkdirSync(dirname(file), { recursive: true })
+            writeFileSync(file, content)
+         }
+         if (this.options.glob.endsWith(".svg")) {
+            if (!this.svgo) {
+               this.svgo = new SVGO(this.options.merge ? {
+                  plugins: [
+                     { removeUselessDefs: false },
+                     { removeUnknownsAndDefaults: false },
+                     { cleanupIDs: false }
+                  ]
+               } : undefined)
+            }
+            this.svgo.optimize(content).then(result => {
+               saveFile(`${bundleDir}/${name}.svg`, result.data)
+            })
+         } else {
+            let result = renderSync({ data: content, outputStyle: "compressed" })
+            saveFile(`${bundleDir}/${name}.css`, result.css.toString())
+         }
+         return ""
+      }
    }
 
    /**  */
@@ -108,12 +173,12 @@ export class WebpackResourcePlugin {
    }
 
    /** */
-   private cacheHandler(files: string[], dtsFile: string, raw?: string, resmod?: ResourceModule) {
-      let tmp = this.options.tmp ? resolve(this.options.tmp) : `${tmpdir()}/${this.pkg}/resources-utilities/cache`
-      let relativeDir = dirname(dtsFile).replace(`${process.cwd()}/`, "")
+   private cacheHandler(files: string[], dtsFile: string, dir: string, raw?: string, resmod?: ResourceModule) {
+      let tmp = this.getTemporaryCacheDirectory()
+      let relativeDir = relative(process.cwd(), dir)
       let filedir = `${tmp}/${relativeDir}`
       let name = basename(dtsFile)
-      name = `${name.substring(0, name.indexOf(".", name.indexOf(".") + 1))}.json`
+      name = `${name.substring(0, name.indexOf(".", name.indexOf(".") + 1))}.js`
 
       let cacheObj = {
          files: files,
@@ -122,8 +187,21 @@ export class WebpackResourcePlugin {
       } as GeneratedMetadata
 
       if (!existsSync(filedir)) mkdirSyncRecursive(filedir)
-      console.debug(`writing cache data at ${filedir}/${name}`)
-      writeFileSync(`${filedir}/${name}`, JSON.stringify(cacheObj))
+      let cacheFile = `${filedir}/${name}`
+      console.debug(`writing cache data at ${cacheFile}`)
+      let clone = Object.assign({}, cacheObj)
+      clone.resModule = undefined
+      if (process.env.NODE_ENV !== 'production') {
+         if (cacheObj.resModule) {
+            cacheObj.resModule.__description = clone
+         } else {
+            cacheObj.resModule = { __description: clone }
+         }
+      }
+      writeFileSync(cacheFile, `
+         ${this.getInjectFileType(cacheObj.rawContent, cacheObj)}
+         module.exports = ${JSON.stringify(cacheObj.resModule)}
+      `)
    }
 
    /** */
@@ -135,7 +213,8 @@ export class WebpackResourcePlugin {
          let opts = {
             merge: merge,
             glob: [],
-            convension: this.options.convension!
+            convension: this.options.convension!,
+            alias: this.reverseAlias
          }
          generator = ext === ".svg" ? new SvgDTSGenerator(opts) : new CssDTSGenerator(opts)
          this.generator.set(ext, generator)
@@ -173,10 +252,11 @@ export class WebpackResourcePlugin {
          }
 
          if (!merge && result) {
-            this.cacheHandler([file], dtsMeta!.genFile, raw, result)
+            this.cacheHandler([file], dtsMeta!.genFile, dir, raw, result)
          }
       }
 
+      let hasChanged = false
       files.forEach(file => {
          if (this.options.verifyChange === "date") {
             let stats = statSync(file)
@@ -190,22 +270,51 @@ export class WebpackResourcePlugin {
                   modified: stats.mtime.getTime(),
                   resModule: this.getGenerator(ext, merge).getResourceModule()
                })
+               hasChanged = true
             }
          } else {
+            hasChanged = true
             generateDts(file)
          }
       })
 
       // save all parse to the file
-      if (merge) {
+      if (merge && hasChanged) {
          let dtsMeta = this.createDtsMeta(dir, basename(dir), true)
          let result = this.getGenerator(ext, merge).commit(dtsMeta)
-         this.cacheHandler(files, dtsMeta.genFile, result.rawMerge, result.module)
+         this.cacheHandler(files, dtsMeta.genFile, dir, result.rawMerge, result.module)
       }
    }
 
    /** apply webpack plugin to generate dts file */
    private applyWebpackPlugin(compiler: webpack.Compiler) {
+      this.output = compiler.options.output
+
+      var deleteFolderRecursive = function (path: string, removeSelf: boolean) {
+         if (existsSync(path)) {
+            readdirSync(path).forEach(function (file) {
+               var curPath = path + "/" + file;
+               if (lstatSync(curPath).isDirectory()) { // recurse
+                  deleteFolderRecursive(curPath, true);
+               } else { // delete file
+                  unlinkSync(curPath);
+               }
+            });
+            if (removeSelf) rmdirSync(path);
+         }
+      };
+      // When running test, we need to keep the generated file for verification
+      if (process.env.NODE_ENV !== 'test') {
+         if (process.env.WEBPACK_DEV_SERVER) {
+            compiler.hooks.watchClose.tap("WebpackResourcePlugin", (_: {}) => {
+               deleteFolderRecursive(this.getTemporaryCacheDirectory(), false)
+            })
+         } else {
+            compiler.hooks.done.tap("WebpackResourcePlugin", (_: {}) => {
+               deleteFolderRecursive(this.getTemporaryCacheDirectory(), false)
+            })
+         }
+      }
 
       // cache webpack alias configuration
       if (compiler.options.resolve) {
@@ -255,34 +364,66 @@ export class WebpackResourcePlugin {
    /** */
    private applyWebpackResolverPlugin(resolver: ExtResolver) {
       resolver.hooks.describedResolve.tapAsync("ResourcesResolver", (req: ResolverRequest, _: LoggingCallbackTools, callback: LoggingCallbackWrapper) => {
-         let relFile = ""
-         if (this.webpackAlias && !req.request.startsWith("./")) {
-            Object.keys(this.webpackAlias).forEach(key => {
-               let alias = this.webpackAlias![key]
-               if (alias.endsWith("$") && alias.substring(0, alias.length - 1) === req.request) {
-                  let absfile = `${req.descriptionFileRoot}/change-me`
-                  relFile = relative(req.descriptionFileRoot!, absfile)
-               } else if (req.request.startsWith(alias)) {
-                  // found alias
-                  relFile = req.request.replace(key, alias)
+         let validFile = req.request.endsWith(".svg") ||
+            req.request.endsWith(".css") ||
+            req.request.endsWith(".sass") ||
+            req.request.endsWith(".scss")
+
+         if (this.options.merge) {
+            for (let p of this.options.merge) {
+               let refRequest: string
+               if (this.webpackAlias && this.webpackAlias[req.request]) {
+                  // got module alias
+                  refRequest = this.webpackAlias[req.request]
+               } else {
+                  refRequest = req.relativePath ? `${req.relativePath}/${req.request}` : req.request
                }
-            })
-         } else {
-            relFile = `${this.removeRelativeDot(req.relativePath!)}/${this.removeRelativeDot(req.request)}`
+
+               if (resolve(p) === resolve(refRequest)) {
+                  validFile = true
+                  break
+               }
+            }
          }
-         if (relFile !== "") {
-            let fStat = statSync(relFile)
-            if (fStat.isDirectory()) {
-               // merge needed
-               let abspath = resolve(relFile)
-               if (this.resFiles[abspath].merge) {
-                  return this.createAliasResolveReplacement(resolver, req, `${relFile}/${basename(relFile)}.d.json`, callback)
+
+         if (validFile) {
+            let relFile = ""
+            let abspath = ""
+            if (this.webpackAlias && !req.request.startsWith("./")) {
+               for (let alias of Object.keys(this.webpackAlias)) {
+                  if (alias.endsWith("$") && alias.substring(0, alias.length - 1) === req.request) {
+                     let absfile = `${req.descriptionFileRoot}/change-me`
+                     relFile = relative(req.descriptionFileRoot!, absfile)
+                     break
+                  } else if (req.request.startsWith(alias)) {
+                     // found alias
+                     abspath = this.webpackAlias![alias]
+                     if (req.request != alias && req.request.startsWith(alias)) {
+                        let suffix = req.request.substring(alias.length)
+                        abspath = `${abspath}${suffix}`
+                     }
+                     let refDir = process.cwd()
+                     relFile = relative(refDir, abspath)
+                     break
+                  }
                }
-            } else {
-               let fd = dirname(resolve(relFile))
-               let ext = extname(relFile)
-               if (this.resFiles[fd] !== undefined && this.resFiles[fd].extension[ext] !== undefined) {
-                  return this.createAliasResolveReplacement(resolver, req, `${relFile}.json`, callback)
+            } else if (req.relativePath) {
+               relFile = `${this.removeRelativeDot(req.relativePath!)}/${this.removeRelativeDot(req.request)}`
+               abspath = resolve(relFile)
+            }
+            if (relFile !== "") {
+               let fStat = statSync(abspath)
+               if (fStat.isDirectory()) {
+                  // merge needed
+                  if (this.resFiles[abspath] && this.resFiles[abspath].merge) {
+                     return this.createAliasResolveReplacement(resolver, req, `${relFile}/${basename(relFile)}.d.js`, callback)
+                  }
+               } else {
+                  let fd = dirname(abspath)
+                  let ext = extname(relFile)
+                  if (this.resFiles[fd] !== undefined && this.resFiles[fd].extension[ext] !== undefined) {
+                     return this.createAliasResolveReplacement(resolver, req, `${relFile}.js`, callback)
+                  }
                }
             }
          }
@@ -292,10 +433,11 @@ export class WebpackResourcePlugin {
 
    /** */
    private createAliasResolveReplacement(resolver: ExtResolver, req: ResolverRequest, relPath: string, callback: LoggingCallbackWrapper) {
-      let cacheDir = this.options.tmp ? resolve(this.options.tmp) : `${tmpdir()}/${this.pkg}/resources-utilities/cache`
+      let cacheDir = this.getTemporaryCacheDirectory()
       const obj = Object.assign({}, req, {
          request: `${cacheDir}/${relPath}`
       });
+      console.debug(`Resolve ${req.request} to generated file ${obj.request}`)
       return resolver.doResolve(resolver.hooks.resolve, obj,
          "aliased with mapping", (err?: Error | null, result?: ResolverRequest): any => {
             if (err) return callback(err);

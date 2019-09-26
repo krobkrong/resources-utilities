@@ -1,5 +1,22 @@
 import { readFileSync, existsSync, readdirSync, PathLike, lstatSync, unlinkSync, rmdirSync } from "fs";
 import YAML from 'yaml'
+import { JSDOM } from 'jsdom';
+import { SvgMetadata } from "@resmod/vector/svg";
+
+/**
+ * add window and document to simulate jsdom. Required by webpack plugin to evaluate code generated with
+ * runtime injection.
+ */
+declare global {
+   namespace NodeJS {
+      interface Global {
+         window: Window;
+         document: Document;
+      }
+   }
+}
+global.window = (new JSDOM(``, { pretendToBeVisual: true })).window;
+global.document = window.document
 
 /**
  * the object define the input and output test case
@@ -55,6 +72,10 @@ export namespace Utils {
       return includeTime ? `${result}${new Date().getTime()}` : result;
    }
 
+   /**
+    * Remove directory recursively
+    * @param dir directory to be removed
+    */
    export function removeDir(dir: PathLike) {
       if (existsSync(dir)) {
          readdirSync(dir).forEach(function (file, _) {
@@ -67,6 +88,45 @@ export namespace Utils {
          });
          rmdirSync(dir);
       }
+   }
+
+   /**
+    * Compare two resource metadata throught hierarchy
+    * @param rm1 first resource metadata to be used to compare
+    * @param rm2 second resource metadata to be used to compare
+    */
+   export function IsResourceMetadataEqual(rm1: SvgMetadata, rm2: SvgMetadata, excludeId: boolean = false): boolean {
+      let debug = (msg: string) => { console.log(msg) }
+      if (rm1.name !== rm2.name) { debug(`resource different name ${rm1.name} !== ${rm2.name}`); return false }
+      let keys1 = Object.keys(rm1)
+      let keys2 = Object.keys(rm2)
+      
+      if (excludeId) {
+         let index1 = keys1.indexOf("id"); if (index1 >= 0) keys1.splice(index1, 1)
+         let index2 = keys2.indexOf("id"); if (index2 >= 0) keys2.splice(index2, 1)
+      }
+
+      if (keys1.length !== keys2.length) {
+         let rm1Key = keys1.join(',')
+         let rm2Key = keys2.join(',')
+         debug(`resource different attr ${keys1.length} (${rm1Key}) vs ${keys2.length} (${rm2Key})`)
+         return false
+      }
+
+      for (let key of keys1) {
+         if (key === "raw" || key === "name" || key === "elementType" || key === "ctext" || key === "childs") continue
+         if (keys2.indexOf(key) < 0) { debug(`key ${key} did not existed on both side`); return false }
+         if (rm1[key] !== rm2[key]) { debug(`key value not matched ${rm1[key]} !== ${rm2[key]}`); return false }
+         // all keys is good fit
+      }
+
+      if ((rm1.childs === undefined || rm1.childs === null) && (rm2.childs === undefined || rm2.childs === null)) return true
+      if (rm1.childs!.length !== rm2.childs!.length) { debug(`child size not matched ${rm1.childs!.length} !== ${rm2.childs!.length}`); return false }
+      // IMPORTANT: child can be different order, relied on parser and serialize build in to ensure order is consistent
+      for (let i = 0; i < rm1.childs!.length; i++) {
+         return IsResourceMetadataEqual(rm1.childs![i], rm2.childs![i], excludeId)
+      }
+      return true
    }
 }
 

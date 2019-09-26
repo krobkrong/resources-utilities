@@ -47,10 +47,10 @@ export class SvgDTSGenerator extends DTSGenerator {
          let module = this.getResourceModule()
          if (!this.inTransaction()) {
             this.commitInternal(dtsMeta!)
-            console.debug(`resource: ${secondaryId}${dtsMeta!.extension} generated.`)
+            console.debug(`resource: ${dtsMeta!.genFile} generated.`)
          } else if (this.isMerge()) {
             // TODO: add comment merge in dev mode
-            this.mergeResource(SerializeSvgResourceMetadata(resource!.metadata, secondaryId))
+            this.mergeResource(SerializeSvgResourceMetadata(resource!.metadata, this.isMerge(), secondaryId))
          }
          return module
       } else {

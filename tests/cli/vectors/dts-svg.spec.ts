@@ -41,12 +41,14 @@ describe("Test DTS Svg module", () => {
                   cmdOpt += ` -n ${opt.options.convension}`
                }
                if (opt.options.alias) {
-                  cmdOpt += ` --mod ${opt.options.alias!.module}`
-                  cmdOpt += ` --path ${opt.options.alias!.path}`
+                  for (let module of Object.keys(opt.options.alias)) {
+                     cmdOpt += ` --mod ${module}`
+                     cmdOpt += ` --path ${opt.options.alias![module]}`
+                  }
                }
 
                try {
-                  let result = execSync(`${tsNode} ${tsConfigPathOpt} src/cli/resutil.ts ${cmdOpt} ${opt.options.glob}`)
+                  let result = execSync(`${tsNode} ${tsConfigPathOpt} --transpile-only src/cli/resutil.ts ${cmdOpt} ${opt.options.glob}`)
                   expect(result).toBeTruthy()
                } catch (err) {
                   fail(err)
@@ -100,15 +102,17 @@ describe("test merged:", () => {
                cmdOpt += ` -n ${opt.options.convension}`
             }
             if (opt.options.alias) {
-               cmdOpt += ` --mod ${opt.options.alias!.module}`
-               cmdOpt += ` --path ${opt.options.alias!.path}`
+               for (let module of Object.keys(opt.options.alias)) {
+                  cmdOpt += ` --mod ${module}`
+                  cmdOpt += ` --path ${opt.options.alias![module]}`
+               }
             }
             if (opt.options.wrap) {
                cmdOpt += " -w true"
             }
 
             try {
-               let result = execSync(`${tsNode} ${tsConfigPathOpt} src/cli/resutil.ts ${cmdOpt} ${opt.options.glob}`)
+               let result = execSync(`${tsNode} ${tsConfigPathOpt} --transpile-only src/cli/resutil.ts ${cmdOpt} ${opt.options.glob}`)
                expect(result).toBeTruthy()
             } catch (err) {
                fail(err)

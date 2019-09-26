@@ -71,6 +71,10 @@ export interface DtsGeneratorOptions {
     * By default, it will use platform's default temporary folder.
     */
    tmp?: string
+   /**
+    * specified whether the generate code in production should exclude style or svg injection.
+    */
+   excludeInject?: boolean
 }
 
 /**
@@ -106,6 +110,7 @@ export class PluginFactory {
    public static getPlugins(options: DtsGeneratorOptions): webpack.Plugin {
       if (options.convension === undefined) {
          options.convension = "camel"
+         options.verifyChange = "date"
       }
       return new WebpackResourcePlugin(options)
    }

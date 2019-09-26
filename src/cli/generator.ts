@@ -1,6 +1,6 @@
 import { ResourceModule, SerializeResourceModule } from "@resmod/webpack/loader/types";
 import { CommandLineOptions } from "@resmod/cli/dts";
-import { dirname, parse, basename } from "path";
+import { dirname, parse, basename, resolve, relative } from "path";
 import { existsSync, writeFileSync } from "fs";
 import { transformFileNameConvention } from "@resmod/common/convension";
 import { mkdirSyncRecursive } from "@resmod/common/file";
@@ -126,7 +126,19 @@ export abstract class DTSGenerator {
    protected commitInternal(dtsMeta: DTSMeta): { module: ResourceModule, rawMerge?: string } {
       var moduleName = dtsMeta.module
       if (this.options.alias) {
-         moduleName = moduleName.replace(this.options.alias!.path, this.options.alias!.module)
+         let reverseAlias = this.options.alias
+         let absModPath = resolve(moduleName)
+         for (let key of Object.keys(reverseAlias)) {
+            if (absModPath.startsWith(key)) {
+               let codeAlias = reverseAlias[key]
+               let suffix = relative(key, absModPath)
+               if (codeAlias) moduleName = `${codeAlias}/${suffix}`
+            }
+         }
+      }
+
+      if (moduleName.endsWith("/")) {
+         moduleName = moduleName.substr(0, moduleName.length - 1)
       }
 
       let content = `declare module "${moduleName}" {\n${SerializeResourceModule(this.resMod!)}}`

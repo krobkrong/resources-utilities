@@ -11,8 +11,7 @@ input:
         options:
           merge: false
           alias:
-            module: @resmod
-            path: tests
+            @resmod: tests
           glob: tests/cli/vectors/svg1.spec.svg
 
       - name: output options
@@ -25,8 +24,7 @@ input:
         options:
           merge: false
           alias:
-            module: @resmod
-            path: tests
+            @resmod: tests
           glob: tests/cli/vectors/svg1.spec.svg
           output: tests/cli/vectors/out
 

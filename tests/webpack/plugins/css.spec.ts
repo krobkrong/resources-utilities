@@ -1,5 +1,4 @@
 import { PluginFactory } from "@resmod/webpack/plugins/factory";
-import { GeneratedMetadata } from "@resmod/webpack/plugins/plugin";
 import { ResourceModule } from "@resmod/webpack/loader/types";
 import { WebpackUtil } from "@test-helper/compiler";
 import { TestCaseHelper, Utils } from "@test-helper/helper";
@@ -10,7 +9,6 @@ import { tmpdir } from "os";
 import { existsSync, unlinkSync, readFileSync, rmdirSync } from "fs";
 import { GlobSync } from "glob";
 import { renderSync } from "node-sass";
-
 
 interface Output {
    module: { [index: string]: string }
@@ -49,13 +47,16 @@ describe("Test Style Plugin resource", () => {
          let fext = extname(name.substr(0, name.lastIndexOf("."))) as string
          let index = exts.indexOf(fext.substr(1))
          if (index >= 0) {
-            let result = JSON.parse(mod.source) as GeneratedMetadata
-            expect(result.files).toBeTruthy()
-            expect(result.files).toStrictEqual([`${__dirname}/test-data/style/${files[index]}${fext}`])
-            expect(result.resModule).toBeTruthy()
+            let result = eval(mod.source) as ResourceModule
+            expect(result).toBeTruthy()
             let output = TestCaseHelper.ReadOutputExpected<Output>(`${__dirname}/test-data/style/${files[index]}.expect.yml`)
-            expect(result.resModule).toStrictEqual(output.module)
-            expect(result.rawContent).toBeTruthy()
+            let clone = Object.assign({}, result)
+            delete clone.__description
+            expect(clone).toStrictEqual(output.module)
+            expect(result.__description).toBeTruthy()
+            expect(result.__description!.rawContent).toBeTruthy()
+            expect(result.__description!.files).toBeTruthy()
+            expect(result.__description!.files).toStrictEqual([`${__dirname}/test-data/style/${files[index]}${fext}`])
          }
       })
 
@@ -72,13 +73,18 @@ describe("Test Style Plugin resource", () => {
          expect(readFileSync(`${dtsDir}/${style}.${exts[i]}.d.ts`).toString()).toStrictEqual(dtsMod)
 
          // verify temporary file generate for webpack resolve plugin
-         let file = `${tmp}/${dtsRelativeDir}/${style}.${exts[i]}.json`
+         let file = `${tmp}/${dtsRelativeDir}/${style}.${exts[i]}.js`
          expect(existsSync(file)).toStrictEqual(true)
-         let cache = require(file) as GeneratedMetadata
-         expect(cache.rawContent !== "").toStrictEqual(true)
-         expect(cache.files).toEqual([`${dtsDir}/${style}.${exts[i]}`])
-         expect(cache.resModule).toBeTruthy()
-         expect(cache.resModule).toStrictEqual(output.module)
+         let content = readFileSync(file)
+         let cache = eval(content!.toString()) as ResourceModule
+         let clone = Object.assign({}, cache)
+         delete clone.__description
+         expect(cache).toBeTruthy()
+         expect(clone).toStrictEqual(output.module)
+         expect(cache.__description).toBeTruthy()
+         expect(cache.__description!.rawContent !== "").toStrictEqual(true)
+         expect(cache.__description!.files).toEqual([`${dtsDir}/${style}.${exts[i]}`])
+         
       })
    }
 
@@ -122,26 +128,30 @@ describe("Test Style Plugin resource", () => {
       expect(modules).toBeTruthy()
       modules!.forEach((mod: any) => {
          let name = basename(mod.name)
-         if (name === "style.d.json") {
-            let result = JSON.parse(mod.source) as GeneratedMetadata
-            expect(result.files).toBeTruthy()
-            expect(result.files.length).toEqual(3)
-            exts.forEach((ext, i) => {
-               let fi = result.files.indexOf(`${__dirname}/test-data/style/${files[i]}.${ext}`)
-               expect(fi).toBeGreaterThan(-1)
-            })
-
-            expect(result.resModule).toBeTruthy()
+         if (name === "style.d.js") {
+            let result = eval(mod.source) as ResourceModule
+            expect(result).toBeTruthy()
             let extModule: ResourceModule = {}
             exts.forEach((_, i) => {
                let oe = TestCaseHelper.ReadOutputExpected<Output>(`${__dirname}/test-data/style/${files[i]}.expect.yml`)
                extModule = Object.assign({}, extModule, oe.module)
             })
-            expect(result.resModule).toStrictEqual(extModule)
+            let clone = Object.assign({}, result)
+            delete clone.__description
+            expect(clone).toStrictEqual(extModule)
 
-            expect(result.rawContent).toBeTruthy()
+            expect(result.__description!).toBeTruthy()
+            expect(result.__description!.files).toBeTruthy()
+            expect(result.__description!.files.length).toEqual(3)
+            exts.forEach((ext, i) => {
+               let fi = result.__description!.files.indexOf(`${__dirname}/test-data/style/${files[i]}.${ext}`)
+               expect(fi).toBeGreaterThan(-1)
+            })
+
+
+            expect(result.__description!.rawContent).toBeTruthy()
             let expectRawcontent = ""
-            result.files.forEach(file => {
+            result.__description!.files.forEach(file => {
                let ext = extname(file)
                if (ext === ".scss" || ext === ".sass") {
                   expectRawcontent += renderSync({ file: file }).css.toString()
@@ -149,7 +159,7 @@ describe("Test Style Plugin resource", () => {
                   expectRawcontent += readFileSync(file).toString()
                }
             })
-            expect(result.rawContent).toStrictEqual(expectRawcontent)
+            expect(result.__description!.rawContent).toStrictEqual(expectRawcontent)
          }
       })
    })

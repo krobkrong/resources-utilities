@@ -1,13 +1,13 @@
 import { PluginFactory } from "@resmod/webpack/plugins/factory"
 import { WebpackUtil } from "@test-helper/compiler"
 import webpack = require("webpack")
-import { GeneratedMetadata } from "@resmod/webpack/plugins/plugin"
 import { TestCaseHelper, Utils } from "@test-helper/helper"
 import { basename, extname, relative } from "path"
 import { GlobSync } from "glob"
 import { unlinkSync, existsSync, readFileSync } from "fs"
 import { SvgModuleParser } from "@resmod/vector/svg"
 import { SvgElementType } from "@resmod/vector/types"
+import { ResourceModule } from "@resmod/webpack/loader/types"
 
 let moduleRules: webpack.RuleSetRule[] = []
 let fileEntry = `${__dirname}/svg-data/index.js`
@@ -37,12 +37,12 @@ describe("Test SVG Plugin resource", () => {
         stats.toJson().modules!.forEach((mod: any) => {
             let name = basename(mod.name as string)
             let ext = extname(name)
-            if (ext == "json" && existsSync(`${__dirname}/svg-data/icons/${name.substring(0, name.lastIndexOf("."))}`)) {
+            if (ext == "js" && existsSync(`${__dirname}/svg-data/icons/${name.substring(0, name.lastIndexOf("."))}`)) {
                 // test json generated
             } else if (ext == "svg") {
                 let index = name.indexOf(".")
                 let filename = name.substring(0, index)
-                let result = JSON.parse(mod.source) as GeneratedMetadata
+                let result = eval(mod.source) as ResourceModule
                 expect(result.files).toBeTruthy()
                 expect(result.files).toStrictEqual([`${__dirname}/svg-data/icons/${name}`])
                 expect(result.resModule).toBeTruthy()
@@ -90,17 +90,19 @@ describe("Test SVG Plugin resource", () => {
         expect(modules).toBeTruthy()
         modules!.forEach((mod: any) => {
             let name = basename(mod.name)
-            if (name === "all-icons.d.json") {
-                let result = JSON.parse(mod.source) as GeneratedMetadata
-                expect(result.files).toBeTruthy()
-                expect(result.files.length).toEqual(4)
-
-                expect(result.resModule).toBeTruthy()
+            if (name === "all-icons.d.js") {
+                let result = eval(mod.source) as ResourceModule
+                expect(result).toBeTruthy()
                 let output = TestCaseHelper.ReadOutputExpected<Output>(`${__dirname}/svg-data/all-icons/module.expect.yml`)
-                expect(result.resModule).toStrictEqual(output.module)
+                let clone = Object.assign({}, result)
+                delete clone.__description
+                expect(clone).toStrictEqual(output.module)
 
-                expect(result.rawContent).toBeTruthy()
-                let svg = new SvgModuleParser({includeMeta: true}).parse(result.rawContent)
+                expect(result.__description).toBeTruthy()
+                expect(result.__description!.files.length).toEqual(4)
+
+                expect(result.__description!.rawContent).toBeTruthy()
+                let svg = new SvgModuleParser({includeMeta: true}).parse(result.__description!.rawContent)
                 expect(svg!.metadata.elementType).toStrictEqual(SvgElementType.SVG)
                 expect(svg!.metadata).toBeTruthy()
                 expect(svg!.metadata.childs).toBeTruthy()

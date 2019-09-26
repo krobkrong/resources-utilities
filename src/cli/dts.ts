@@ -34,17 +34,7 @@ export interface CommandLineOptions {
     * This allow the generated code produce the correct import module which
     * is necessary to verify by typescript compiler.
     */
-   alias?: {
-      /**
-       * an alias module that use as imported path.
-       * For example: @module/data
-       */
-      module: string
-      /**
-       * an actual path to the file
-       */
-      path: string
-   }
+   alias?: { [index: string]: string }
 
    /**
     * The output directory of the definition file. If not specified then

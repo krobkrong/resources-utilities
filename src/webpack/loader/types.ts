@@ -1,12 +1,15 @@
 import { VectorType } from "@resmod/vector/types";
 import { StyleType } from "@resmod/style/types";
+import { GeneratedMetadata } from "@resmod/webpack/plugins/plugin";
 
 /**
  * an interface that listening keyword define in resource that need
  * to be provided to javascript at runtime.
  */
 export interface ResourceModule {
-   [index: string]: string
+   [index: string]: string | GeneratedMetadata | undefined
+   // use for supply additional info a long default exports module
+   __description?: GeneratedMetadata
 }
 
 /**

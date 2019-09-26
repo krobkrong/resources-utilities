@@ -43,6 +43,17 @@ export {
 } from "@resmod/webpack/loader/types"
 
 export {
+   DtsGeneratorOptions,
+   PluginFactory
+} from "@resmod/webpack/plugins/factory"
+
+export {
+   GeneratedMetadata,
+   WebpackResourcePlugin
+} from "@resmod/webpack/plugins/plugin"
+
+
+export {
    DTSMeta,
    DTSGenerator,
    FileDtsGenerator,

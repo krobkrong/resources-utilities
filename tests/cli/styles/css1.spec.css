@@ -11,8 +11,7 @@ input:
         options:
            merge: false
            alias:
-              module: @resmod
-              path: tests
+              "@resmod": tests
            glob: tests/cli/styles/css1.spec.css
 
       - name: output options
@@ -25,8 +24,7 @@ input:
         options:
            merge: false
            alias:
-              module: @resmod
-              path: tests
+              "@resmod": tests
            glob: tests/cli/styles/css1.spec.css
            output: tests/cli/styles/out
 
