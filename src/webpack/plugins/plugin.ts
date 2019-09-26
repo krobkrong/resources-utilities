@@ -15,6 +15,7 @@ import { renderSync } from "node-sass";
 import { ResolverRequest, LoggingCallbackTools, LoggingCallbackWrapper } from "enhanced-resolve/lib/common-types";
 import { basename, resolve, dirname, extname, relative } from "path";
 import { tmpdir } from "os";
+import { GlobSync } from "glob";
 
 /**
  * 
@@ -79,12 +80,27 @@ export class WebpackResourcePlugin {
    }
 
    /** */
-   private getInjectFileType(content: string, cacheObj: GeneratedMetadata): string {
+   private async optimizeSvg(content: string): Promise<string> {
+      if (!this.svgo) {
+         this.svgo = new SVGO(this.options.merge ? {
+            plugins: [
+               { removeUselessDefs: false },
+               { removeUnknownsAndDefaults: false },
+               { cleanupIDs: false }
+            ]
+         } : undefined)
+      }
+      return (await this.svgo!.optimize(content)).data;
+   }
+
+   /** */
+   private async getInjectFileType(content: string, cacheObj: GeneratedMetadata): Promise<string> {
       if (process.env.NODE_ENV !== 'production' && !this.options.excludeInject) {
          if (this.options.glob.endsWith(".svg")) {
+            let optContent = await this.optimizeSvg(content);
             return `
             let div = document.createElement('div');
-            div.innerHTML = \`${content}\`;
+            div.innerHTML = \`${optContent}\`;
             let svg = div.children[0];
             document.body.appendChild(svg);
             var att = document.createAttribute("display");
@@ -116,18 +132,8 @@ export class WebpackResourcePlugin {
             writeFileSync(file, content)
          }
          if (this.options.glob.endsWith(".svg")) {
-            if (!this.svgo) {
-               this.svgo = new SVGO(this.options.merge ? {
-                  plugins: [
-                     { removeUselessDefs: false },
-                     { removeUnknownsAndDefaults: false },
-                     { cleanupIDs: false }
-                  ]
-               } : undefined)
-            }
-            this.svgo.optimize(content).then(result => {
-               saveFile(`${bundleDir}/${name}.svg`, result.data)
-            })
+            let optContent = this.optimizeSvg(content);
+            saveFile(`${bundleDir}/${name}.svg`, await optContent)
          } else {
             let result = renderSync({ data: content, outputStyle: "compressed" })
             saveFile(`${bundleDir}/${name}.css`, result.css.toString())
@@ -173,7 +179,7 @@ export class WebpackResourcePlugin {
    }
 
    /** */
-   private cacheHandler(files: string[], dtsFile: string, dir: string, raw?: string, resmod?: ResourceModule) {
+   private async cacheHandler(files: string[], dtsFile: string, dir: string, raw?: string, resmod?: ResourceModule) {
       let tmp = this.getTemporaryCacheDirectory()
       let relativeDir = relative(process.cwd(), dir)
       let filedir = `${tmp}/${relativeDir}`
@@ -199,7 +205,7 @@ export class WebpackResourcePlugin {
          }
       }
       writeFileSync(cacheFile, `
-         ${this.getInjectFileType(cacheObj.rawContent, cacheObj)}
+         ${await this.getInjectFileType(cacheObj.rawContent, cacheObj)}
          module.exports = ${JSON.stringify(cacheObj.resModule)}
       `)
    }
@@ -330,6 +336,14 @@ export class WebpackResourcePlugin {
             })
          }
       }
+
+      // add watch change dependencies
+      compiler.hooks.afterCompile.tap("WebpackResourcePlugin", (compilation) => {
+         let gl = new GlobSync(this.options.glob)
+         gl.found.forEach(file => {
+            compilation.fileDependencies.add(file)
+         })
+      })
 
       // generate dts file before webpack compiled
       compiler.hooks.beforeCompile.tap("WebpackResourcePlugin", (_: {}) => {
