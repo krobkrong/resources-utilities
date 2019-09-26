@@ -1,13 +1,13 @@
 const path = require('path');
-const aa = require('@krobkrong/resources-utilities');
+const resUtil = require('@krobkrong/resources-utilities');
 
-let pluginSvg = aa.PluginFactory.getPlugins({
+let pluginSvg = resUtil.PluginFactory.getPlugins({
     glob: `${__dirname}/resources/icons/*.svg`,
     merge: [`${__dirname}/resources/icons/`],
     output: `${__dirname}/src/@types`
 })
 
-let pluginCss = aa.PluginFactory.getPlugins({
+let pluginCss = resUtil.PluginFactory.getPlugins({
     glob: `${__dirname}/resources/styles/*.{css,scss,sass}`,
     merge: [`${__dirname}/resources/styles/`],
     output: `${__dirname}/src/@types`

@@ -29,7 +29,7 @@ export class CssDTSGenerator extends DTSGenerator {
     * @param raw raw css stylesheet
     * @param dtsMeta an optional typescript definition metadata.
     */
-   generate(raw: string, name: string, dtsMeta?: DTSMeta): ResourceModule | undefined {
+   generate(raw: string, name: string, _?: boolean, dtsMeta?: DTSMeta): ResourceModule | undefined {
       let resource = StyleUtils.parse(raw, this.cssOpts)
       if (resource) {
          this.setResourceModule(resource!.resourceModule)

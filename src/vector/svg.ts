@@ -478,14 +478,30 @@ function prefix(convension: NameConvension): Prefix {
 }
 
 /**
+ * 
+ */
+export interface SvgSerializeOptions {
+   merge?: boolean
+   id?: string
+   skipSvg?: boolean
+   tab?: string
+   useGivenId?: boolean
+}
+
+/**
  * Serialize resource metadata into it origin form.
  * @param rm a resource metadata
  * @param tab space to use as indent
  */
-export function SerializeSvgResourceMetadata(rootRM: ResourceMetadata, merge?: boolean, id?: string, skipSvg: boolean = true, tab: string = "  "): string {
+export function SerializeSvgResourceMetadata(rootRM: ResourceMetadata, opt: SvgSerializeOptions = {}): string {
    let hierarchies: ResourceMetadata[]
    let wrapInSymbol: boolean
-   if (skipSvg && (rootRM as SvgMetadata).childs) {
+
+   if (opt.skipSvg === undefined || opt.skipSvg === null) opt.skipSvg = true
+   if (!opt.tab) opt.tab = "   "
+   if (opt.useGivenId && !opt.id) throw "must provide id when option useGivenId is set to true."
+
+   if (opt.skipSvg && rootRM.elementType === SvgElementType.SVG && (rootRM as SvgMetadata).childs) {
       hierarchies = (rootRM as SvgMetadata).childs!
       wrapInSymbol = rootRM["viewBox"] !== undefined && rootRM["width"] !== undefined && rootRM["height"] !== undefined
    } else {
@@ -500,7 +516,7 @@ export function SerializeSvgResourceMetadata(rootRM: ResourceMetadata, merge?: b
          if (key === "ctext" || key === "name" || key === "childs" || key === "raw" || key === "elementType") {
             return
          }
-         if ((ignoreId || merge) && key === "id") {
+         if ((ignoreId || opt.merge) && key === "id") {
             return
          }
          buf += ` ${key}="${rm[key]}"`
@@ -524,15 +540,21 @@ export function SerializeSvgResourceMetadata(rootRM: ResourceMetadata, merge?: b
    traverse = (hr: ResourceMetadata[], indent: string, level: number): string => {
       var buf = ""
       hr.forEach(rm => {
-         let eleid: string = rm["id"] ? rm["id"] as string : id!
          let svgMeta = rm as SvgMetadata
          let wrap = level === 0 && wrapInSymbol
-         let indentWrap = wrap ? indent + tab : indent
+         let indentWrap = wrap ? indent + opt.tab : indent
 
-         var eleBuf = `${indentWrap}<${svgMeta.name}${attrSerialize(rm, wrap)}`
+         let eleid = ` id="${(rm["id"] && !opt.useGivenId) ? rm["id"] as string : opt.id!}"`
+         let isSymbol = wrap && isSymbolable(svgMeta)
+         let elementID = ""
+         if (!isSymbol && level === 0) {
+            elementID = eleid
+         }
+
+         var eleBuf = `${indentWrap}<${svgMeta.name}${elementID}${attrSerialize(rm, wrap)}`
          if (svgMeta.childs) {
             eleBuf += ">\n"
-            eleBuf += traverse(svgMeta.childs, indentWrap + tab, level + 1)
+            eleBuf += traverse(svgMeta.childs, indentWrap + opt.tab, level + 1)
             eleBuf += `${indentWrap}</${svgMeta.name}>\n`
          } else if (svgMeta.ctext !== undefined) {
             eleBuf += `>${svgMeta.ctext!}</${svgMeta.name}>\n`
@@ -540,8 +562,8 @@ export function SerializeSvgResourceMetadata(rootRM: ResourceMetadata, merge?: b
             eleBuf += `></${svgMeta.name}>\n`
          }
 
-         if (wrap && isSymbolable(svgMeta)) {
-            buf += `${indent}<symbol id="${eleid}" width="${rootRM["width"]}" height="${rootRM["height"]}" viewBox="${rootRM["viewBox"]}">\n`
+         if (isSymbol) {
+            buf += `${indent}<symbol${eleid} width="${rootRM["width"]}" height="${rootRM["height"]}" viewBox="${rootRM["viewBox"]}">\n`
             buf += `${eleBuf}`
             buf += `${indent}</symbol>\n`
          } else {

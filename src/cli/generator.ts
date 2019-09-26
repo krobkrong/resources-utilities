@@ -99,7 +99,7 @@ export abstract class DTSGenerator {
     * @param options command line options
     * @param dtsMeta dts metadata
     */
-   public abstract generate(raw: string, secondaryId: string, dtsMeta?: DTSMeta): ResourceModule | undefined
+   public abstract generate(raw: string, secondaryId: string, useSecondary?: boolean, dtsMeta?: DTSMeta): ResourceModule | undefined
 
    /**
     * Update existing resource if available otherwise a new resource module is created

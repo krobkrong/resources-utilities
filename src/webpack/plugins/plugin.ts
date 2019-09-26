@@ -90,7 +90,9 @@ export class WebpackResourcePlugin {
             ]
          } : undefined)
       }
-      return (await this.svgo!.optimize(content)).data;
+      return (await this.svgo!.optimize(content).catch(e => {
+         throw `Plugin svg optimization error: ${e}`
+      })).data;
    }
 
    /** */
@@ -251,10 +253,10 @@ export class WebpackResourcePlugin {
          let ext = extname(file)
          if (ext === ".scss" || ext === ".sass") {
             raw = renderSync({ file: file }).css.toString()
-            result = this.getGenerator(ext, merge).generate(raw, name, dtsMeta)
+            result = this.getGenerator(ext, merge).generate(raw, name, false, dtsMeta)
          } else {
             raw = readFileSync(file).toString()
-            result = this.getGenerator(ext, merge).generate(raw, name, dtsMeta)
+            result = this.getGenerator(ext, merge).generate(raw, name, this.options.mergeFilenameAsId, dtsMeta)
          }
 
          if (!merge && result) {
@@ -340,9 +342,15 @@ export class WebpackResourcePlugin {
       // add watch change dependencies
       compiler.hooks.afterCompile.tap("WebpackResourcePlugin", (compilation) => {
          let gl = new GlobSync(this.options.glob)
-         gl.found.forEach(file => {
-            compilation.fileDependencies.add(file)
-         })
+         if (this.options.merge) {
+            this.options.merge!.forEach(dir => {
+               compilation.contextDependencies.add(dir)
+            })
+         } else {
+            gl.found.forEach(file => {
+               compilation.fileDependencies.add(file)
+            })
+         }
       })
 
       // generate dts file before webpack compiled
@@ -451,7 +459,6 @@ export class WebpackResourcePlugin {
       const obj = Object.assign({}, req, {
          request: `${cacheDir}/${relPath}`
       });
-      console.debug(`Resolve ${req.request} to generated file ${obj.request}`)
       return resolver.doResolve(resolver.hooks.resolve, obj,
          "aliased with mapping", (err?: Error | null, result?: ResolverRequest): any => {
             if (err) return callback(err);

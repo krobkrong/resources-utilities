@@ -122,16 +122,16 @@ export function Generate(
       switch (ext) {
          case ".svg":
             raw = readFileSync(file).toString()
-            return { resmod: svgGen!.generate(raw, name, dtsMeta), raw: raw }
+            return { resmod: svgGen!.generate(raw, name, options.wrap, dtsMeta), raw: raw }
 
          case ".scss":
          case ".sass":
             raw = renderSync({ file: file }).css.toString()
-            return { resmod: cssGen!.generate(raw, name, dtsMeta), raw: raw }
+            return { resmod: cssGen!.generate(raw, name, false, dtsMeta), raw: raw }
 
          case ".css":
             raw = readFileSync(file).toString()
-            return { resmod: cssGen!.generate(raw, name, dtsMeta), raw: raw }
+            return { resmod: cssGen!.generate(raw, name, false, dtsMeta), raw: raw }
 
          default:
             throw "unsupported resources"

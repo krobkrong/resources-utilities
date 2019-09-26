@@ -3,12 +3,13 @@ import { Options } from 'selenium-webdriver/chrome'
 import { join, delimiter } from 'path'
 import { ChildProcess, exec } from 'child_process';
 import { waitUntilUsed } from 'tcp-port-used'
-import { SvgModuleParser } from '@resmod/vector/svg';
+import { SvgModuleParser, SerializeSvgResourceMetadata } from '@resmod/vector/svg';
 import { readFileSync } from 'fs';
 import { Utils } from '@test-helper/helper';
 import { GeneratedMetadata } from '@resmod/webpack/plugins/plugin'
 import { GlobSync } from 'glob';
 import { renderSync } from 'node-sass';
+import SVGO from "svgo";
 
 
 let driver: selenium.WebDriver
@@ -58,9 +59,9 @@ let testMergeSvg = async (port: number) => {
     expect(listEle.length).toEqual(4)
     let ids = new Map([
         ["animal", { tag: "g", file: `${__dirname}/www/resources/icons/animal.svg` }],
-        ["bell", { tag: "g", file: `${__dirname}/www/resources/icons/bell.svg` }],
+        ["bell", { tag: "path", file: `${__dirname}/www/resources/icons/bell.svg` }],
         ["picin", { tag: "g", file: `${__dirname}/www/resources/icons/picin.svg` }],
-        ["moon", { tag: "g", file: `${__dirname}/www/resources/icons/moon.svg` }]
+        ["moon", { tag: "path", file: `${__dirname}/www/resources/icons/moon.svg` }]
     ])
 
     let svgParser = new SvgModuleParser({ includeMeta: true })
@@ -78,11 +79,23 @@ let testMergeSvg = async (port: number) => {
         expect(await allChild[0].getTagName()).toStrictEqual(svgInfo!.tag)
 
         let svgMod = svgParser.parse(readFileSync(svgInfo!.file).toString())
+        let svgo = new SVGO({
+            plugins: [
+               { removeUselessDefs: false },
+               { removeUnknownsAndDefaults: false },
+               { cleanupIDs: false }
+            ]
+         })
         for (let child of svgMod!.metadata.childs!) {
             if (child["id"] === id) {
+                let rawSvg = SerializeSvgResourceMetadata(svgMod!.metadata, { merge: true })
+                let optRawSvg = await svgo.optimize(rawSvg)
+                let optMod = svgParser.parse(`<svg><def>${optRawSvg.data}</def></svg>`)
                 let htmlText = await ele.getAttribute("innerHTML")
                 let mod = svgParser.parse(`<svg>${htmlText.trim()}</svg>`)
-                expect(Utils.IsResourceMetadataEqual(mod!.metadata.childs![0], child, true)).toBe(true);
+                expect(Utils.IsResourceMetadataEqual(
+                        mod!.metadata.childs![0], 
+                        optMod!.metadata.childs![0].childs![0].childs![0], true)).toBe(true);
             }
         }
     }

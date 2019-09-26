@@ -40,7 +40,7 @@ export class SvgDTSGenerator extends DTSGenerator {
     * @param raw raw svg vector
     * @param dtsMeta an optional typescript definition metadata
     */
-   generate(raw: string, secondaryId: string, dtsMeta?: DTSMeta): ResourceModule | undefined {
+   generate(raw: string, secondaryId: string, useSecondary: boolean = false, dtsMeta?: DTSMeta): ResourceModule | undefined {
       let resource = VectorUtils.parse(raw, this.svgOpts)
       if (resource) {
          this.setResourceModule(resource!.resourceModule)
@@ -50,7 +50,11 @@ export class SvgDTSGenerator extends DTSGenerator {
             console.debug(`resource: ${dtsMeta!.genFile} generated.`)
          } else if (this.isMerge()) {
             // TODO: add comment merge in dev mode
-            this.mergeResource(SerializeSvgResourceMetadata(resource!.metadata, this.isMerge(), secondaryId))
+            this.mergeResource(SerializeSvgResourceMetadata(resource!.metadata, {
+               merge: this.isMerge(),
+               id: secondaryId,
+               useGivenId: useSecondary
+            }))
          }
          return module
       } else {

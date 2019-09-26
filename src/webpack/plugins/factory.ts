@@ -75,6 +75,11 @@ export interface DtsGeneratorOptions {
     * specified whether the generate code in production should exclude style or svg injection.
     */
    excludeInject?: boolean
+   /**
+    * Use with svg resource only which which replace actual id of svg element with it filename instead.
+    * This is useful when merging multiple svg file that export with redundant id.
+    */
+   mergeFilenameAsId?: boolean
 }
 
 /**
