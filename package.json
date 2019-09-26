@@ -1,6 +1,6 @@
 {
   "name": "@krobkrong/resources-utilities",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "A node utilities to generate typescript defition from svg, css, scss.",
   "main": "dist/index.js",
   "types": "dist/types/index.d.ts",
@@ -34,7 +34,7 @@
     "rework:js": "ts-node utilties/conv.ts -a resmod --js -r build",
     "clean": "rm -rf build && rm -rf dist && rm -rf coverage",
     "pre-release": "standard-version",
-    "release": "yarn publish --tag beta --access public",
+    "release": "yarn publish --tag latest --access public",
     "selenium": "ts-node utilties/selenium-util.ts -d tests/webpack/browser/drivers"
   },
   "jest": {
