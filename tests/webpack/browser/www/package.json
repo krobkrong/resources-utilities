@@ -13,7 +13,7 @@
     "start:ts:merge": "webpack-dev-server --config ./webpack.config.merge.ts --mode development"
   },
   "devDependencies": {
-    "@krobkrong/resources-utilities": "^0.1.3",
+    "@krobkrong/resources-utilities": "^0.1.7",
     "@types/node": "^12.7.5",
     "@types/webpack": "^4.39.1",
     "@types/webpack-dev-server": "^3.1.7",
