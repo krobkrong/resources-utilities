@@ -153,6 +153,7 @@ export class CssModuleParser implements StyleParser<ResourceMetadata> {
             case 32:    // space consider the end
             case 9:     // tab consider the end
             case 44:    // comma consider the end
+            case 58:    // colon (:) consider the end
                if (selectorType !== undefined) {
                   appendKey(name.toString(), name.rawString())
                   name.reset()
