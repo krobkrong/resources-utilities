@@ -3,9 +3,11 @@ import styles from "../resources/styles"
 
 window.getSvgEmbeddedElement = () => {
     let elements = [];
-    Object.keys(icons).forEach(key => {
-        if (typeof icons[key] === "string") {
-            elements.push(document.querySelector(`#${icons[key]}`))
+    Object.entries(icons).forEach((key, _) => {
+        if (Array.isArray(key)) {
+            if (typeof key[1] === "string") {
+                elements.push(document.querySelector(`#${key[1]}`))
+            }
         }
     })
     return elements

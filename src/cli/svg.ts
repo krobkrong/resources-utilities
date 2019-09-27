@@ -41,6 +41,10 @@ export class SvgDTSGenerator extends DTSGenerator {
     */
    doGenerate(raw: string, secondaryId: string, useSecondary: boolean = false, dtsMeta?: DTSMeta): GeneratedResult | undefined {
       let resource = VectorUtils.parse(raw, this.svgOpts)
+      if (useSecondary) {
+         resource!.resourceModule = {}
+         resource!.resourceModule[secondaryId] = secondaryId
+      }
       let serializeRaw: string = ""
       if (resource) {
          this.setResourceModule(resource!.resourceModule)
