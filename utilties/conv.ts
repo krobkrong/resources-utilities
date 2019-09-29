@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
 import * as yargs from 'yargs'
-import { writeFileSync } from 'fs';
-import { resolve } from 'path';
+import { writeFileSync, mkdirSync, createReadStream, createWriteStream } from 'fs';
+import { resolve, join } from 'path';
 import { GlobSync } from 'glob';
 import { JSReplacement } from './js';
 import { TypesReplacement } from './types';
+import { basename } from "upath";
 
 var argv = yargs.scriptName("replace")
    .usage("\n$0 [-m commonjs] -a '@mod' -r build")
@@ -39,27 +40,32 @@ let files: string[] = iglob.found
 // create common replace function
 let replaceContent: ReplaceContent
 if (argv.ts) {
-   TypesReplacement.root = resolve(argv.r)
-   replaceContent = TypesReplacement.replace
+   // move custom webpack declaration
+   let definition = "src/types/webpack.d.ts";
+   let dir = join(argv.r, "types");
+   mkdirSync(dir);
+   createReadStream(definition).pipe(createWriteStream(join(dir, basename(definition))));
+   TypesReplacement.root = resolve(argv.r);
+   replaceContent = TypesReplacement.replace;
 } else {
    switch (argv.m) {
       case "commonjs":
-         JSReplacement.root = resolve(argv.r)
-         replaceContent = JSReplacement.replaceCommonJS
-         break
+         JSReplacement.root = resolve(argv.r);
+         replaceContent = JSReplacement.replaceCommonJS;
+         break;
 
       default:
-         console.warn("unsupport javascript format")
-         yargs.showHelp()
-         process.exit(1)
+         console.warn("unsupport javascript format");
+         yargs.showHelp();
+         process.exit(1);
    }
 }
 
 // loop through all given file
 files.forEach(file => {
    // only javascript is consider as valid file
-   writeFileSync(file, replaceContent(file, argv.a))
+   writeFileSync(file, replaceContent(file, argv.a));
 })
 
 /** Type replacement function */
-type ReplaceContent = (file: string, alias: string) => string
+type ReplaceContent = (file: string, alias: string) => string;
