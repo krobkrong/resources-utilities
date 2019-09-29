@@ -82,15 +82,40 @@ export class WebpackResourcePlugin {
    }
 
    /** */
-   private async optimizeSvg(content: string): Promise<string> {
+   public async optimizeSvg(content: string): Promise<string> {
       if (!this.svgo) {
-         this.svgo = new SVGO(this.options.merge ? {
-            plugins: [
-               { removeUselessDefs: false },
-               { removeUnknownsAndDefaults: false },
-               { cleanupIDs: false }
-            ]
-         } : undefined)
+         let removeAttr = {
+            removeAttrs: {
+               // All of this properties should be relied on stylesheet instead.
+               attrs: [
+                  "color",
+                  // remove all fill properties
+                  "fill", "fill-opacity", "fill-rule",
+                  // remove all stroke properties
+                  "stroke", "stroke-width", "stroke-dasharray", "stroke-dashoffset",
+                  "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity",
+                  // remove font properties
+                  "font", "font-family", "font-size", "font-size-adjust", "font-stretch",
+                  "font-style", "font-variant", "font-weight"
+               ]
+            }
+         };
+         let svgoOpt: SVGO.Options | undefined;
+         if (this.options.merge) {
+            svgoOpt = {
+               plugins: [
+                  { removeUselessDefs: false },
+                  { removeUnknownsAndDefaults: false },
+                  { cleanupIDs: false },
+                  removeAttr
+               ]
+            }
+         }
+         if (this.options.cleanSvgPresentationAttr) {
+            svgoOpt = Object.assign({ plugins: [] }, svgoOpt);
+            svgoOpt.plugins!.push(removeAttr);
+         }
+         this.svgo = new SVGO(svgoOpt);
       }
       return (await this.svgo!.optimize(content).catch(e => {
          throw `Plugin svg optimization error: ${e}`

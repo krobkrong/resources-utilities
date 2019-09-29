@@ -5,7 +5,8 @@ import { PluginFactory } from '@krobkrong/resources-utilities'
 let pluginSvg = PluginFactory.getPlugins({
     glob: `${__dirname}/resources/icons/*.svg`,
     merge: [`${__dirname}/resources/icons/`],
-    output: `${__dirname}/src/@types`
+    output: `${__dirname}/src/@types`,
+    cleanSvgPresentationAttr: true
 })
 
 let pluginCss = PluginFactory.getPlugins({

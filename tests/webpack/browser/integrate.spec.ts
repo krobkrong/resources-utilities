@@ -9,7 +9,7 @@ import { Utils } from '@test-helper/helper';
 import { GeneratedMetadata } from '@resmod/webpack/plugins/plugin'
 import { GlobSync } from 'glob';
 import { renderSync } from 'node-sass';
-import SVGO from "svgo";
+import { PluginFactory } from "@resmod/webpack/plugins/factory";
 
 
 let driver: selenium.WebDriver
@@ -65,6 +65,8 @@ let testMergeSvg = async (port: number) => {
     ])
 
     let svgParser = new SvgModuleParser({ includeMeta: true })
+    // left glob empty, we only need access to the optimize svgo
+    let pluginSvg = PluginFactory.getPlugins({ glob: "", merge: [""], cleanSvgPresentationAttr: true });
     for (let ele of listEle) {
         let tag = await ele.getTagName()
         let id = await ele.getAttribute("id")
@@ -79,23 +81,16 @@ let testMergeSvg = async (port: number) => {
         expect(await allChild[0].getTagName()).toStrictEqual(svgInfo!.tag)
 
         let svgMod = svgParser.parse(readFileSync(svgInfo!.file).toString())
-        let svgo = new SVGO({
-            plugins: [
-               { removeUselessDefs: false },
-               { removeUnknownsAndDefaults: false },
-               { cleanupIDs: false }
-            ]
-         })
         for (let child of svgMod!.metadata.childs!) {
             if (child["id"] === id) {
-                let rawSvg = SerializeSvgResourceMetadata(svgMod!.metadata, { merge: true })
-                let optRawSvg = await svgo.optimize(rawSvg)
-                let optMod = svgParser.parse(`<svg><def>${optRawSvg.data}</def></svg>`)
-                let htmlText = await ele.getAttribute("innerHTML")
-                let mod = svgParser.parse(`<svg>${htmlText.trim()}</svg>`)
+                let rawSvg = SerializeSvgResourceMetadata(svgMod!.metadata, { merge: true });
+                let optRawSvg = await pluginSvg.optimizeSvg(rawSvg);
+                let optMod = svgParser.parse(`<svg><def>${optRawSvg}</def></svg>`);
+                let htmlText = await ele.getAttribute("innerHTML");
+                let mod = svgParser.parse(`<svg>${htmlText.trim()}</svg>`);
                 expect(Utils.IsResourceMetadataEqual(
-                        mod!.metadata.childs![0], 
-                        optMod!.metadata.childs![0].childs![0].childs![0], true)).toBe(true);
+                    mod!.metadata.childs![0],
+                    optMod!.metadata.childs![0].childs![0].childs![0], true)).toBe(true);
             }
         }
     }

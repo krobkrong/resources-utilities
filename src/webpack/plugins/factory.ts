@@ -5,7 +5,6 @@ import { GlobSync } from "glob";
 import { statSync } from "fs";
 import { relative, dirname, extname, resolve } from "path";
 import { WebpackResourcePlugin } from "@resmod/webpack/plugins/plugin";
-import webpack from "webpack";
 
 
 /**
@@ -34,6 +33,12 @@ export interface DtsGeneratorOptions {
     * the definition file will generate and store at the same location as resource file.
     */
    output?: string
+
+   /**
+    * Indicate whether svg optimization should remove most of presentation attribute if
+    * they should be highlight by stylesheet instead.
+    */
+   cleanSvgPresentationAttr?: boolean
 
    /**
     * Generate typescript variable with pre-define prefix base on resource element.
@@ -112,7 +117,7 @@ export class PluginFactory {
     * Create new plugin instance to apply to Webpack configuration
     * @param options open to custom generated file
     */
-   public static getPlugins(options: DtsGeneratorOptions): webpack.Plugin {
+   public static getPlugins(options: DtsGeneratorOptions): WebpackResourcePlugin {
       if (options.convension === undefined) {
          options.convension = "camel"
          options.verifyChange = "date"

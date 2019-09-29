@@ -4,7 +4,8 @@ const resUtil = require('@krobkrong/resources-utilities');
 let pluginSvg = resUtil.PluginFactory.getPlugins({
     glob: `${__dirname}/resources/icons/*.svg`,
     merge: [`${__dirname}/resources/icons/`],
-    output: `${__dirname}/src/@types`
+    output: `${__dirname}/src/@types`,
+    cleanSvgPresentationAttr: true
 })
 
 let pluginCss = resUtil.PluginFactory.getPlugins({
