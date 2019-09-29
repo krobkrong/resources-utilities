@@ -93,7 +93,6 @@ export class WebpackResourcePlugin {
          } : undefined)
       }
       return (await this.svgo!.optimize(content).catch(e => {
-         console.log("--???--", content)
          throw `Plugin svg optimization error: ${e}`
       })).data;
    }
@@ -199,7 +198,6 @@ export class WebpackResourcePlugin {
 
       if (!existsSync(filedir)) mkdirSyncRecursive(filedir)
       let cacheFile = `${filedir}/${name}`
-      console.debug(`writing cache data at ${cacheFile}`)
       let clone = Object.assign({}, cacheObj)
       clone.resModule = undefined
       if (process.env.NODE_ENV !== 'production') {
@@ -273,19 +271,20 @@ export class WebpackResourcePlugin {
       }
 
       let hasChanged = false
+      let dirExt = `${dir}:${extname(files[0])}`
       if (this.options.verifyChange === "date") {
-         if (this.session.get(dir) === undefined) {
-            this.session.set(dir, { files: files });
-         } else if (this.session.get(dir)!.files!.length !== files.length) {
+         if (this.session.get(dirExt) === undefined) {
+            this.session.set(dirExt, { files: files });
+         } else if (this.session.get(dirExt)!.files!.length !== files.length) {
             // a file has been remove
-            this.session.get(dir)!.files!.forEach(file => {
+            this.session.get(dirExt)!.files!.forEach(file => {
                if (files.indexOf(file) < 0) {
                   // file is removed
                   this.session.delete(file);
                   hasChanged = true
                }
             });
-            this.session.get(dir)!.files = files;
+            this.session.get(dirExt)!.files = files;
          }
          for (let file of files) {
             // verify if file has changed
@@ -301,24 +300,25 @@ export class WebpackResourcePlugin {
          if (!hasChanged) return;
       }
 
-
       files.forEach(file => {
          if (this.options.verifyChange === "date") {
             if (this.session.get(file) !== undefined) {
                // only merge need to update the combine generated code
-               if (!merge) throw "only merge suppose to be here"
-               generateDts(file, this.session.get(file)!.result)
-               return
+               if (!merge) {
+                  let stats = statSync(file)
+                  if (this.session.get(file)!.modified === stats.mtime.getTime()) return;
+               }
+               generateDts(file, this.session.get(file)!.result);
             } else {
                this.session.set(file, {
                   modified: statSync(file).mtime.getTime(),
                   result: generateDts(file)
                })
-               hasChanged = true
+               hasChanged = true;
             }
          } else {
-            hasChanged = true
-            generateDts(file)
+            hasChanged = true;
+            generateDts(file);
          }
       })
 
