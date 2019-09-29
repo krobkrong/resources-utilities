@@ -13,7 +13,7 @@ export interface ResourceModule {
 }
 
 /**
- * Serialize resource module into typescript code.
+ * Serialize resource module into typescript module code.
  * @param rm resource module
  * @param tab space to use as indent
  */
@@ -21,6 +21,19 @@ export function SerializeResourceModule(rm: ResourceModule, tab: string = "  "):
    var code = ""
    Object.keys(rm).forEach(key => {
       code += `${tab}export const ${key}: string\n`
+   })
+   return code
+}
+
+/**
+ * Serialize resource module into typescript module variable.
+ * @param rm resource module
+ * @param tab space to use as indent
+ */
+export function SerializeResourceModuleAsVariable(rm: ResourceModule, tab: string = "  "): string {
+   var code = ""
+   Object.keys(rm).forEach(key => {
+      code += `${tab}${key}: string\n`
    })
    return code
 }

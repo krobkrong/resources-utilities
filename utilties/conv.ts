@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import * as yargs from 'yargs'
-import { writeFileSync, mkdirSync, createReadStream, createWriteStream } from 'fs';
+import { writeFileSync, mkdirSync, createReadStream, createWriteStream, existsSync } from 'fs';
 import { resolve, join } from 'path';
 import { GlobSync } from 'glob';
 import { JSReplacement } from './js';
@@ -43,7 +43,9 @@ if (argv.ts) {
    // move custom webpack declaration
    let definition = "src/types/webpack.d.ts";
    let dir = join(argv.r, "types");
-   mkdirSync(dir);
+   if (!existsSync(dir)) {
+      mkdirSync(dir);
+   }
    createReadStream(definition).pipe(createWriteStream(join(dir, basename(definition))));
    TypesReplacement.root = resolve(argv.r);
    replaceContent = TypesReplacement.replace;
