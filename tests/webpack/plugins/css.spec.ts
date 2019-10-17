@@ -1,177 +1,180 @@
+import { IResourceModule } from "@resmod/webpack/loader/types";
 import { PluginFactory } from "@resmod/webpack/plugins/factory";
-import { ResourceModule } from "@resmod/webpack/loader/types";
 import { WebpackUtil } from "@test-helper/compiler";
-import { TestCaseHelper, Utils } from "@test-helper/helper";
+import { TestCaseHelper } from "@test-helper/helper";
+import { Utils } from "@test-helper/util";
 
-import webpack from "webpack"
-import { relative, extname, basename } from "path";
-import { tmpdir } from "os";
-import { existsSync, unlinkSync, readFileSync, rmdirSync } from "fs";
+import { existsSync, readFileSync, rmdirSync, unlinkSync } from "fs";
 import { GlobSync } from "glob";
 import { renderSync } from "node-sass";
+import { tmpdir } from "os";
+import { basename, extname, relative } from "path";
+import webpack from "webpack";
 
-interface Output {
-   module: { [index: string]: string }
-   dts: string
+interface IOutput {
+   module: { [index: string]: string };
+   dts: string;
 }
 
 afterAll(() => {
-   let gl = new GlobSync(`${__dirname}/test-data/style/*.d.ts`)
-   gl.found.forEach(file => {
-      unlinkSync(file)
-   })
-})
+   const gl = new GlobSync(`${__dirname}/test-data/style/*.d.ts`);
+   gl.found.forEach((file) => {
+      unlinkSync(file);
+   });
+});
 
-let moduleRules: webpack.RuleSetRule[] = []
-let files = ["main", "custom", "sample"]
-let exts = ["css", "sass", "scss"]
-let fileEntry = `${__dirname}/test-data/index.js`
+const moduleRules: webpack.RuleSetRule[] = [];
+const files = ["main", "custom", "sample"];
+const exts = ["css", "sass", "scss"];
+const fileEntry = `${__dirname}/test-data/index.js`;
 
 describe("Test Style Plugin resource", () => {
 
    afterAll(() => {
-      let gl = new GlobSync(`${__dirname}/out/**/*.d.ts`)
-      gl.found.forEach(file => {
-         unlinkSync(file)
-      })
-      rmdirSync(`${__dirname}/out/dts`)
-      rmdirSync(`${__dirname}/out`)
+      const gl = new GlobSync(`${__dirname}/out/**/*.d.ts`);
+      gl.found.forEach((file) => {
+         unlinkSync(file);
+      });
+      rmdirSync(`${__dirname}/out/dts`);
+      rmdirSync(`${__dirname}/out`);
 
-      Utils.removeDir(`${__dirname}/test-data/css-tmp`)
-   })
+      Utils.removeDir(`${__dirname}/test-data/css-tmp`);
+   });
 
-   let verifyResult = (stats: webpack.Stats) => {
-      expect(stats.toJson().modules).toBeTruthy()
+   const verifyResult = (stats: webpack.Stats) => {
+      expect(stats.toJson().modules).toBeTruthy();
       stats.toJson().modules!.forEach((mod: any) => {
-         let name = mod.name as string
-         let fext = extname(name.substr(0, name.lastIndexOf("."))) as string
-         let index = exts.indexOf(fext.substr(1))
+         const name = mod.name as string;
+         const fext = extname(name.substr(0, name.lastIndexOf("."))) as string;
+         const index = exts.indexOf(fext.substr(1));
          if (index >= 0) {
-            let result = eval(mod.source) as ResourceModule
-            expect(result).toBeTruthy()
-            let output = TestCaseHelper.ReadOutputExpected<Output>(`${__dirname}/test-data/style/${files[index]}.expect.yml`)
-            let clone = Object.assign({}, result)
-            delete clone.__description
-            expect(clone).toStrictEqual(output.module)
-            expect(result.__description).toBeTruthy()
-            expect(result.__description!.rawContent).toBeTruthy()
-            expect(result.__description!.files).toBeTruthy()
-            expect(result.__description!.files).toStrictEqual([`${__dirname}/test-data/style/${files[index]}${fext}`])
+            // tslint:disable-next-line: no-eval
+            const result = eval(mod.source) as IResourceModule;
+            expect(result).toBeTruthy();
+            const output = TestCaseHelper.ReadOutputExpected<IOutput>(`${__dirname}/test-data/style/${files[index]}.expect.yml`);
+            const clone = Object.assign({}, result);
+            delete clone.__description;
+            expect(clone).toStrictEqual(output.module);
+            expect(result.__description).toBeTruthy();
+            expect(result.__description!.rawContent).toBeTruthy();
+            expect(result.__description!.files).toBeTruthy();
+            expect(result.__description!.files).toStrictEqual([`${__dirname}/test-data/style/${files[index]}${fext}`]);
          }
-      })
+      });
 
-      let pkg = require(`${process.cwd()}/package.json`).name as string
-      let tmp = `${tmpdir()}/${pkg}/resources-utilities/cache`
-      let dtsDir = `${__dirname}/test-data/style`
-      let dtsRelativeDir = relative(process.cwd(), dtsDir)
+      const pkg = require(`${process.cwd()}/package.json`).name as string;
+      const tmp = `${tmpdir()}/${pkg}/resources-utilities/cache`;
+      const dtsDir = `${__dirname}/test-data/style`;
+      const dtsRelativeDir = relative(process.cwd(), dtsDir);
 
       files.forEach((style, i) => {
          // verify typed generated
-         expect(existsSync(`${dtsDir}/${style}.${exts[i]}.d.ts`)).toStrictEqual(true)
-         let output = TestCaseHelper.ReadOutputExpected<Output>(`${dtsDir}/${style}.expect.yml`)
-         let dtsMod = output.dts.replace("{@module}", relative(process.cwd(), `${__dirname}/test-data/style/${style}.${exts[i]}`))
-         expect(readFileSync(`${dtsDir}/${style}.${exts[i]}.d.ts`).toString()).toStrictEqual(dtsMod)
+         expect(existsSync(`${dtsDir}/${style}.${exts[i]}.d.ts`)).toStrictEqual(true);
+         const output = TestCaseHelper.ReadOutputExpected<IOutput>(`${dtsDir}/${style}.expect.yml`);
+         const dtsMod = output.dts.replace("{@module}", relative(process.cwd(), `${__dirname}/test-data/style/${style}.${exts[i]}`));
+         expect(readFileSync(`${dtsDir}/${style}.${exts[i]}.d.ts`).toString().trim()).toStrictEqual(dtsMod);
 
          // verify temporary file generate for webpack resolve plugin
-         let file = `${tmp}/${dtsRelativeDir}/${style}.${exts[i]}.js`
-         expect(existsSync(file)).toStrictEqual(true)
-         let content = readFileSync(file)
-         let cache = eval(content!.toString()) as ResourceModule
-         let clone = Object.assign({}, cache)
-         delete clone.__description
-         expect(cache).toBeTruthy()
-         expect(clone).toStrictEqual(output.module)
-         expect(cache.__description).toBeTruthy()
-         expect(cache.__description!.rawContent !== "").toStrictEqual(true)
-         expect(cache.__description!.files).toEqual([`${dtsDir}/${style}.${exts[i]}`])
-         
-      })
-   }
+         const file = `${tmp}/${dtsRelativeDir}/${style}.${exts[i]}.js`;
+         expect(existsSync(file)).toStrictEqual(true);
+         const content = readFileSync(file);
+         // tslint:disable-next-line: no-eval
+         const cache = eval(content!.toString()) as IResourceModule;
+         const clone = Object.assign({}, cache);
+         delete clone.__description;
+         expect(cache).toBeTruthy();
+         expect(clone).toStrictEqual(output.module);
+         expect(cache.__description).toBeTruthy();
+         expect(cache.__description!.rawContent !== "").toStrictEqual(true);
+         expect(cache.__description!.files).toEqual([`${dtsDir}/${style}.${exts[i]}`]);
+
+      });
+   };
 
    test("Default (No merge, no output, no custom temporary folder)", async () => {
 
-      let plugin = PluginFactory.getPlugins({
-         glob: `${__dirname}/test-data/style/*.{css,scss,sass}`
-      })
+      const plugin = PluginFactory.getPlugins({
+         glob: `${__dirname}/test-data/style/*.{css,scss,sass}`,
+      });
 
-      let stats = await WebpackUtil.run(fileEntry, moduleRules, [plugin], [plugin])
-      verifyResult(stats)
-   })
+      const stats = await WebpackUtil.run(fileEntry, moduleRules, [plugin], [plugin]);
+      verifyResult(stats);
+   });
 
    test("Output Directory", async () => {
-      let plugin = PluginFactory.getPlugins({
+      const plugin = PluginFactory.getPlugins({
          glob: `${__dirname}/test-data/style/*.{css,scss,sass}`,
-         output: `${__dirname}/out/dts`
-      })
+         output: `${__dirname}/out/dts`,
+      });
 
-      await WebpackUtil.run(fileEntry, moduleRules, [plugin], [plugin])
+      await WebpackUtil.run(fileEntry, moduleRules, [plugin], [plugin]);
 
-      let dtsDir = `${__dirname}/out/dts`
+      const dtsDir = `${__dirname}/out/dts`;
       files.forEach((style, i) => {
          // verify typed generated
-         expect(existsSync(`${dtsDir}/${style}.${exts[i]}.d.ts`)).toStrictEqual(true)
-         let output = TestCaseHelper.ReadOutputExpected<Output>(`${__dirname}/test-data/style/${style}.expect.yml`)
-         let dtsMod = output.dts.replace("{@module}", relative(process.cwd(), `${__dirname}/test-data/style/${style}.${exts[i]}`))
-         expect(readFileSync(`${dtsDir}/${style}.${exts[i]}.d.ts`).toString()).toStrictEqual(dtsMod)
-      })
-   })
+         expect(existsSync(`${dtsDir}/${style}.${exts[i]}.d.ts`)).toStrictEqual(true);
+         const output = TestCaseHelper.ReadOutputExpected<IOutput>(`${__dirname}/test-data/style/${style}.expect.yml`);
+         const dtsMod = output.dts.replace("{@module}", relative(process.cwd(), `${__dirname}/test-data/style/${style}.${exts[i]}`));
+         expect(readFileSync(`${dtsDir}/${style}.${exts[i]}.d.ts`).toString().trim()).toStrictEqual(dtsMod);
+      });
+   });
 
    test("Merge", async () => {
-      let plugin = PluginFactory.getPlugins({
+      const plugin = PluginFactory.getPlugins({
          glob: `${__dirname}/test-data/style/*.{css,scss,sass}`,
-         merge: [`${__dirname}/test-data/style/`]
-      })
+         merge: [`${__dirname}/test-data/style/`],
+      });
 
-      let stats = await WebpackUtil.run(`${__dirname}/test-data/index.merge.js`, moduleRules, [plugin], [plugin]);
-      let modules = stats.toJson().modules
+      const stats = await WebpackUtil.run(`${__dirname}/test-data/index.merge.js`, moduleRules, [plugin], [plugin]);
+      const modules = stats.toJson().modules;
 
-      expect(modules).toBeTruthy()
+      expect(modules).toBeTruthy();
       modules!.forEach((mod: any) => {
-         let name = basename(mod.name)
+         const name = basename(mod.name);
          if (name === "style.d.js") {
-            let result = eval(mod.source) as ResourceModule
-            expect(result).toBeTruthy()
-            let extModule: ResourceModule = {}
+            // tslint:disable-next-line: no-eval
+            const result = eval(mod.source) as IResourceModule;
+            expect(result).toBeTruthy();
+            let extModule: IResourceModule = {};
             exts.forEach((_, i) => {
-               let oe = TestCaseHelper.ReadOutputExpected<Output>(`${__dirname}/test-data/style/${files[i]}.expect.yml`)
-               extModule = Object.assign({}, extModule, oe.module)
-            })
-            let clone = Object.assign({}, result)
-            delete clone.__description
-            expect(clone).toStrictEqual(extModule)
+               const oe = TestCaseHelper.ReadOutputExpected<IOutput>(`${__dirname}/test-data/style/${files[i]}.expect.yml`);
+               extModule = Object.assign({}, extModule, oe.module);
+            });
+            const clone = Object.assign({}, result);
+            delete clone.__description;
+            expect(clone).toStrictEqual(extModule);
 
-            expect(result.__description!).toBeTruthy()
-            expect(result.__description!.files).toBeTruthy()
-            expect(result.__description!.files.length).toEqual(3)
+            expect(result.__description!).toBeTruthy();
+            expect(result.__description!.files).toBeTruthy();
+            expect(result.__description!.files.length).toEqual(3);
             exts.forEach((ext, i) => {
-               let fi = result.__description!.files.indexOf(`${__dirname}/test-data/style/${files[i]}.${ext}`)
-               expect(fi).toBeGreaterThan(-1)
-            })
+               const fi = result.__description!.files.indexOf(`${__dirname}/test-data/style/${files[i]}.${ext}`);
+               expect(fi).toBeGreaterThan(-1);
+            });
 
-
-            expect(result.__description!.rawContent).toBeTruthy()
-            let expectRawcontent = ""
-            result.__description!.files.forEach(file => {
-               let ext = extname(file)
+            expect(result.__description!.rawContent).toBeTruthy();
+            let expectRawcontent = "";
+            result.__description!.files.forEach((file) => {
+               const ext = extname(file);
                if (ext === ".scss" || ext === ".sass") {
-                  expectRawcontent += renderSync({ file: file }).css.toString()
+                  expectRawcontent += renderSync({ file }).css.toString();
                } else {
-                  expectRawcontent += readFileSync(file).toString()
+                  expectRawcontent += readFileSync(file).toString();
                }
-            })
-            expect(result.__description!.rawContent).toStrictEqual(expectRawcontent)
+            });
+            expect(result.__description!.rawContent).toStrictEqual(expectRawcontent);
          }
-      })
-   })
+      });
+   });
 
    test("Custom Temporary Directory without merge", async () => {
-      let plugin = PluginFactory.getPlugins({
+      const plugin = PluginFactory.getPlugins({
          glob: `${__dirname}/test-data/style/*.{css,scss,sass}`,
-         tmp: `${__dirname}/test-data/css-tmp`
-      })
-  
-      let stats = await WebpackUtil.run(`${__dirname}/test-data/index.js`, moduleRules, [plugin], [plugin]);
-      verifyResult(stats)
-   })
+         tmp: `${__dirname}/test-data/css-tmp`,
+      });
 
-})
+      const stats = await WebpackUtil.run(`${__dirname}/test-data/index.js`, moduleRules, [plugin], [plugin]);
+      verifyResult(stats);
+   });
+
+});

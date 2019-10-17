@@ -38,11 +38,11 @@ output:
                    // ************************************************************************
 
                    declare module "tests/cli/styles/css1.spec.css" {
-                     export const simpleColor: string
-                     export const globalMargin: string
-                     export const testPage: string
-                     export const darkPurple: string
-                     export const melody: string
+                     export const simpleColor: string;
+                     export const globalMargin: string;
+                     export const testPage: string;
+                     export const darkPurple: string;
+                     export const melody: string;
                    }
 
       - file: tests/cli/styles/css1.spec.d.ts
@@ -52,11 +52,11 @@ output:
                    // ************************************************************************
 
                    declare module "@resmod/cli/styles/css1.spec.css" {
-                     export const simpleColor: string
-                     export const globalMargin: string
-                     export const testPage: string
-                     export const darkPurple: string
-                     export const melody: string
+                     export const simpleColor: string;
+                     export const globalMargin: string;
+                     export const testPage: string;
+                     export const darkPurple: string;
+                     export const melody: string;
                    }
 
       - file: tests/cli/styles/out/css1.spec.d.ts
@@ -66,12 +66,13 @@ output:
                    // ************************************************************************
                    
                    declare module "tests/cli/styles/css1.spec.css" {
-                     export const simpleColor: string
-                     export const globalMargin: string
-                     export const testPage: string
-                     export const darkPurple: string
-                     export const melody: string
+                     export const simpleColor: string;
+                     export const globalMargin: string;
+                     export const testPage: string;
+                     export const darkPurple: string;
+                     export const melody: string;
                    }
+                   
 
       - file: tests/cli/styles/out/css1.spec.d.ts
         content: |-
@@ -80,12 +81,13 @@ output:
                    // ************************************************************************
 
                    declare module "@resmod/cli/styles/css1.spec.css" {
-                     export const simpleColor: string
-                     export const globalMargin: string
-                     export const testPage: string
-                     export const darkPurple: string
-                     export const melody: string
+                     export const simpleColor: string;
+                     export const globalMargin: string;
+                     export const testPage: string;
+                     export const darkPurple: string;
+                     export const melody: string;
                    }
+
 */
 :root {
    --simple-color: red;

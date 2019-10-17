@@ -8,7 +8,8 @@ dts: |-
         // ************************************************************************
         
         declare module "{@module}" {
-          export const lightBackground: string
-          export const menuIndex: string
-          export const dataScience: string
+          export const lightBackground: string;
+          export const menuIndex: string;
+          export const dataScience: string;
         }
+        

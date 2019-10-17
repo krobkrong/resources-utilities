@@ -10,9 +10,10 @@ dts: |-
         // ************************************************************************
 
         declare module "{@module}" {
-          export const dataImport: string
-          export const soundWidth: string
-          export const noteSample: string
-          export const generalNote: string
-          export const foodInformation: string
+          export const dataImport: string;
+          export const soundWidth: string;
+          export const noteSample: string;
+          export const generalNote: string;
+          export const foodInformation: string;
         }
+        

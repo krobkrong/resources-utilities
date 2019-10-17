@@ -35,7 +35,8 @@
     "clean": "rm -rf build && rm -rf dist && rm -rf coverage",
     "pre-release": "standard-version",
     "release": "yarn publish --access public",
-    "selenium": "ts-node utilties/selenium-util.ts -d tests/webpack/browser/drivers"
+    "selenium": "ts-node utilties/selenium-util.ts -d tests/webpack/browser/drivers",
+    "tslint": "tslint --fix"
   },
   "jest": {
     "clearMocks": true,
@@ -86,7 +87,9 @@
     "ts-node": "^8.1.0",
     "tsconfig-paths": "^3.8.0",
     "tslib": "^1.9.3",
+    "tslint": "^5.20.0",
     "typescript": "^3.4.5",
+    "typescript-tslint-plugin": "^0.5.4",
     "yaml": "^1.5.0"
   },
   "dependencies": {

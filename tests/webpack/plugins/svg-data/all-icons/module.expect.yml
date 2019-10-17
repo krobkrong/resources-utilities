@@ -9,8 +9,9 @@ dts: |-
         // ************************************************************************
 
         declare module "{@module}" {
-          export const animal: string
-          export const bell: string
-          export const moon: string
-          export const picin: string
+          export const animal: string;
+          export const bell: string;
+          export const moon: string;
+          export const picin: string;
         }
+        

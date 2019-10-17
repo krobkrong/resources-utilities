@@ -28,7 +28,12 @@
       "@test-helper/*": [
         "tests/helpers/*"
       ]
-    }
+    },
+    "plugins": [
+      {
+        "name": "typescript-tslint-plugin"
+      }
+    ]
   },
   "include": [
     "src/**/*.ts",
@@ -36,6 +41,7 @@
     "tests/helpers/*.ts"
   ],
   "exclude": [
-    "node_modules", "build"
+    "node_modules",
+    "build"
   ]
 }

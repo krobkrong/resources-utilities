@@ -27,10 +27,10 @@ export enum SvgElementType {
    POLYLINE = "polyline",
    LINE = "line",
    PATH = "path",
-   ELLIPSE = "ellipse"
+   ELLIPSE = "ellipse",
 }
 
 /**
  * Vector element type
  */
-export type VectorElementType = SvgElementType
+export type VectorElementType = SvgElementType;

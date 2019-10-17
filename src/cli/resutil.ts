@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-import * as yargs from 'yargs'
-import { CommandLineOptions, Generate } from './dts';
-import { resolve } from 'path';
+import { Generate, ICommandLineOptions } from "@resmod/cli/dts";
+import { resolve } from "path";
+import * as yargs from "yargs";
 
-var argv = yargs.scriptName("resmod")
+const argv = yargs.scriptName("resmod")
    .usage("\n$0 [-o directory] resources/**/*.*")
    // merge flag
    .boolean("m")
@@ -31,37 +31,36 @@ var argv = yargs.scriptName("resmod")
    .describe("s", "path to save the parsed data into a single file. Use together with merge true. Use . to store the generated file at the same location as original file.")
    // general flag
    .help("help")
-   .argv
+   .argv;
 
-if (argv._.length == 0) {
-   yargs.showHelp()
-   process.exit(0)
+if (argv._.length === 0) {
+   yargs.showHelp();
+   process.exit(0);
 }
 
 // create alias object if any
-let alias: {[index: string]: string | undefined} | undefined
-if (argv["mod"] && argv["path"]) {
-   alias = {}
-   alias[resolve(argv.path)] = argv.mod
+let alias: {[index: string]: string | undefined} | undefined;
+if (argv.mod && argv.path) {
+   alias = {};
+   alias[resolve(argv.path)] = argv.mod;
 } else {
-   alias = undefined
+   alias = undefined;
 }
 
 // create command option
-let cmdOpt = {
-   merge: argv["m"],
-   wrap: argv["w"],
-   alias: alias,
-   output: argv["o"],
-   convension: argv["n"],
-   glob: argv["_"],
-   save: argv["s"]
-} as CommandLineOptions
+const cmdOpt = {
+   alias,
+   convension: argv.n,
+   glob: argv._,
+   merge: argv.m,
+   output: argv.o,
+   save: argv.s,
+   wrap: argv.w,
+} as ICommandLineOptions;
 
 // generate dts file
 try {
-   Generate(cmdOpt)
+   Generate(cmdOpt);
 } catch (e) {
-   console.log(e)
-   yargs.showHelp()
+   yargs.showHelp();
 }

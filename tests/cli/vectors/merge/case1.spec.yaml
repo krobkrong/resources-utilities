@@ -25,17 +25,18 @@ output:
                    // ************************************************************************
 
                    declare module "tests/cli/vectors/merge" {
-                     export const any_group: string
-                     export const any_mask: string
-                     export const any_clip: string
-                     export const oval_area: string
-                     export const ovallipse: string
-                     export const poly_point: string
-                     export const super_group: string
-                     export const blur_me: string
-                     export const sign_area: string
-                     export const rounded_area: string
+                     export const any_group: string;
+                     export const any_mask: string;
+                     export const any_clip: string;
+                     export const oval_area: string;
+                     export const ovallipse: string;
+                     export const poly_point: string;
+                     export const super_group: string;
+                     export const blur_me: string;
+                     export const sign_area: string;
+                     export const rounded_area: string;
                    }
+
 
       - file: tests/cli/vectors/out/merge.svg.d.ts
         content: |-
@@ -44,14 +45,15 @@ output:
                    // ************************************************************************
 
                    declare module "@resmod/cli/vectors/merge" {
-                     export const AnyGroup: string
-                     export const AnyMask: string
-                     export const AnyClip: string
-                     export const OvalArea: string
-                     export const Ovallipse: string
-                     export const PolyPoint: string
-                     export const SuperGroup: string
-                     export const BlurMe: string
-                     export const SignArea: string
-                     export const RoundedArea: string
+                     export const AnyGroup: string;
+                     export const AnyMask: string;
+                     export const AnyClip: string;
+                     export const OvalArea: string;
+                     export const Ovallipse: string;
+                     export const PolyPoint: string;
+                     export const SuperGroup: string;
+                     export const BlurMe: string;
+                     export const SignArea: string;
+                     export const RoundedArea: string;
                    }
+                   

@@ -3,71 +3,69 @@ export {
    VectorType,
    SvgElementType,
    VectorElementType,
-} from "@resmod/vector/types"
+} from "@resmod/vector/types";
 
 export {
    VectorUtils,
-   VectorParser,
-   VectorParseOptions,
-} from "@resmod/vector/parser"
+   IVectorParser as VectorParser,
+   IVectorParseOptions as VectorParseOptions,
+} from "@resmod/vector/parser";
 
 export {
-   SvgMetadata,
+   ISvgMetadata as SvgMetadata,
    SvgModuleParser,
-} from "@resmod/vector/svg"
+} from "@resmod/vector/svg";
 
 export {
    StyleType,
    CssSelectorType,
-} from "@resmod/style/types"
+} from "@resmod/style/types";
 
 export {
    StyleUtils,
-   StyleParser,
-   CssParseOptions,
-} from "@resmod/style/parser"
+   IStyleParser as StyleParser,
+   ICssParseOptions as CssParseOptions,
+} from "@resmod/style/parser";
 
 export {
-   CssModuleParser
-} from "@resmod/style/modular"
+   CssModuleParser,
+} from "@resmod/style/modular";
 
 export {
    NameConvension,
-} from "@resmod/common/convension"
+} from "@resmod/common/convension";
 
 export {
-   Resources,
-   ResourceModule,
-   ResourceMetadata,
-   SerializeResourceModule
-} from "@resmod/webpack/loader/types"
+   IResources as Resources,
+   IResourceModule as ResourceModule,
+   IResourceMetadata as ResourceMetadata,
+   SerializeResourceModule,
+} from "@resmod/webpack/loader/types";
 
 export {
-   DtsGeneratorOptions,
-   PluginFactory
-} from "@resmod/webpack/plugins/factory"
+   IDtsGeneratorOptions as DtsGeneratorOptions,
+   PluginFactory,
+} from "@resmod/webpack/plugins/factory";
 
 export {
-   GeneratedMetadata,
-   WebpackResourcePlugin
-} from "@resmod/webpack/plugins/plugin"
-
+   IGeneratedMetadata as GeneratedMetadata,
+   WebpackResourcePlugin,
+} from "@resmod/webpack/plugins/plugin";
 
 export {
-   DTSMeta,
+   IDTSMeta as DTSMeta,
    DTSGenerator,
-   FileDtsGenerator,
-} from "@resmod/cli/generator"
+} from "@resmod/cli/generator";
 
 export {
    Generate,
-   CommandLineOptions
-} from "@resmod/cli/dts"
+   ICommandLineOptions as CommandLineOptions,
+} from "@resmod/cli/dts";
 
 export {
-   CssDTSGenerator
-} from "@resmod/cli/css"
+   CssDTSGenerator,
+} from "@resmod/cli/css";
 
 export {
-   SvgDTSGenerator
-} from "@resmod/cli/svg"
+   SvgDTSGenerator,
+} from "@resmod/cli/svg";

@@ -27,9 +27,10 @@ output:
                    // ************************************************************************
 
                    declare module "tests/cli/vectors/merge" {
-                     export const svg3_spec: string
-                     export const svg4_spec: string
+                     export const svg3_spec: string;
+                     export const svg4_spec: string;
                    }
+
 
       - file: tests/cli/vectors/out/merge.svg.d.ts
         content: |-
@@ -38,6 +39,7 @@ output:
                    // ************************************************************************
 
                    declare module "@resmod/cli/vectors/merge" {
-                     export const Svg3Spec: string
-                     export const Svg4Spec: string
+                     export const Svg3Spec: string;
+                     export const Svg4Spec: string;
                    }
+                   

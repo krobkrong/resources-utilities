@@ -4,9 +4,8 @@
 export enum CssSelectorType {
    ID,
    CLASS,
-   VARIABLE
+   VARIABLE,
 }
-
 
 /**
  * A type of style.
@@ -14,5 +13,5 @@ export enum CssSelectorType {
 export enum StyleType {
    CSS = "css",
    SCSS = "scss",
-   SASS = "sass"
+   SASS = "sass",
 }
