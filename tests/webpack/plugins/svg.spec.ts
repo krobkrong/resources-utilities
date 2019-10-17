@@ -46,7 +46,8 @@ describe("Test SVG Plugin resource", () => {
                 expect(result.files).toBeTruthy();
                 expect(result.files).toStrictEqual([`${__dirname}/svg-data/icons/${name}`]);
                 expect(result.resModule).toBeTruthy();
-                const output = TestCaseHelper.ReadOutputExpected<IOutput>(`${__dirname}/svg-data/icons/${filename}.expect.yml`);
+                const expectFile = `${__dirname}/svg-data/icons/${filename}.expect.yml`;
+                const output = TestCaseHelper.ReadOutputExpected<IOutput>(expectFile);
                 expect(result.resModule).toStrictEqual(output.module);
                 expect(result.rawContent).toBeTruthy();
                 expect(existsSync(`${__dirname}/svg-data/icons/${filename}.d.ts`));

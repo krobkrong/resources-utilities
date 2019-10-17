@@ -73,7 +73,8 @@ describe("Test Style Plugin resource", () => {
          // verify typed generated
          expect(existsSync(`${dtsDir}/${style}.${exts[i]}.d.ts`)).toStrictEqual(true);
          const output = TestCaseHelper.ReadOutputExpected<IOutput>(`${dtsDir}/${style}.expect${ex}yml`);
-         const dtsMod = output.dts.replace("{@module}", relative(process.cwd(), `${__dirname}/test-data/style/${style}.${exts[i]}`));
+         const expectFile = `${__dirname}/test-data/style/${style}.${exts[i]}`;
+         const dtsMod = output.dts.replace("{@module}", relative(process.cwd(), expectFile));
          expect(readFileSync(`${dtsDir}/${style}.${exts[i]}.d.ts`).toString().trim()).toStrictEqual(dtsMod);
 
          // verify temporary file generate for webpack resolve plugin

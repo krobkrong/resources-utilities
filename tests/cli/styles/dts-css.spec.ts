@@ -48,7 +48,8 @@ describe("Test DTS CSS module", () => {
                }
 
                try {
-                  const result = execSync(`${tsNode} ${tsConfigPathOpt} --transpile-only src/cli/resutil.ts ${cmdOpt} ${opt.options.glob}`);
+                  const option = "--transpile-only src/cli/resutil.ts";
+                  const result = execSync(`${tsNode} ${tsConfigPathOpt} ${option} ${cmdOpt} ${opt.options.glob}`);
                   expect(result).toBeTruthy();
                } catch (err) {
                   fail(err);
