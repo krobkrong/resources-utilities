@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
-import * as yargs from 'yargs'
-import { writeFileSync, mkdirSync, createReadStream, createWriteStream, existsSync } from 'fs';
-import { resolve, join } from 'path';
-import { GlobSync } from 'glob';
-import { JSReplacement } from './js';
-import { TypesReplacement } from './types';
+import { createReadStream, createWriteStream, existsSync, mkdirSync, writeFileSync } from "fs";
+import { GlobSync } from "glob";
+import { join, resolve } from "path";
 import { basename } from "upath";
+import * as yargs from "yargs";
+import { JSReplacement } from "./js";
+import { TypesReplacement } from "./types";
 
-var argv = yargs.scriptName("replace")
+const argv = yargs.scriptName("replace")
    .usage("\n$0 [-m commonjs] -a '@mod' -r build")
    //
    .string("m")
@@ -31,18 +31,18 @@ var argv = yargs.scriptName("replace")
    .describe("r", "root directory of relative path")
    //
    .help("help")
-   .argv
+   .argv;
 
-let ext = argv.ts ? ".ts" : ".js"
-let iglob = new GlobSync(`${argv.r}/**/*${ext}`)
-let files: string[] = iglob.found
+const ext = argv.ts ? ".ts" : ".js";
+const iglob = new GlobSync(`${argv.r}/**/*${ext}`);
+const files: string[] = iglob.found;
 
 // create common replace function
-let replaceContent: ReplaceContent
+let replaceContent: ReplaceContent;
 if (argv.ts) {
    // move custom webpack declaration
-   let definition = "src/types/webpack.d.ts";
-   let dir = join(argv.r, "types");
+   const definition = "src/types/webpack.d.ts";
+   const dir = join(argv.r, "types");
    if (!existsSync(dir)) {
       mkdirSync(dir);
    }
@@ -57,17 +57,16 @@ if (argv.ts) {
          break;
 
       default:
-         console.warn("unsupport javascript format");
          yargs.showHelp();
          process.exit(1);
    }
 }
 
 // loop through all given file
-files.forEach(file => {
+files.forEach((file) => {
    // only javascript is consider as valid file
    writeFileSync(file, replaceContent(file, argv.a));
-})
+});
 
 /** Type replacement function */
 type ReplaceContent = (file: string, alias: string) => string;

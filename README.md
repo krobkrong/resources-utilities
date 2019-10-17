@@ -38,7 +38,6 @@ The command above will generate the typescript definition file in the folder typ
 
 For more information run `resutil --help`
 
-
 ## APIs Usage
 
 Resource utilities provided APIs for both CSS and SVG. The below code utilize `StyleUtils` namespace to parse raw css file:

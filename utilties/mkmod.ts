@@ -1,32 +1,32 @@
 #!/usr/bin/env node
 
-import { mkdirSync, readdirSync, lstatSync, readlinkSync, symlinkSync, createReadStream, createWriteStream } from "fs";
+import { createReadStream, createWriteStream, lstatSync, mkdirSync, readdirSync, readlinkSync, symlinkSync } from "fs";
 import { join } from "path";
 
-let copy = function (src: string, dest: string) {
-    var oldFile = createReadStream(src);
-    var newFile = createWriteStream(dest);
-    oldFile.pipe(newFile)
+const copy = (src: string, dest: string) => {
+    const oldFile = createReadStream(src);
+    const newFile = createWriteStream(dest);
+    oldFile.pipe(newFile);
 };
 
-let copyDir = function (src: string, dest: string) {
-    mkdirSync(dest, { recursive: true })
-    var files = readdirSync(src);
-    for (var i = 0; i < files.length; i++) {
-        var current = lstatSync(join(src, files[i]));
+const copyDir = (src: string, dest: string) => {
+    mkdirSync(dest, { recursive: true });
+    const files = readdirSync(src);
+    for (const file of files) {
+        const current = lstatSync(join(src, file));
         if (current.isDirectory()) {
-            copyDir(join(src, files[i]), join(dest, files[i]));
+            copyDir(join(src, file), join(dest, file));
         } else if (current.isSymbolicLink()) {
-            var symlink = readlinkSync(join(src, files[i]));
-            symlinkSync(symlink, join(dest, files[i]));
+            const symlink = readlinkSync(join(src, file));
+            symlinkSync(symlink, join(dest, file));
         } else {
-            copy(join(src, files[i]), join(dest, files[i]));
+            copy(join(src, file), join(dest, file));
         }
     }
 };
 
-let moduleDir = `${__dirname}/../tests/webpack/browser/www/node_modules/@krobkrong/resources-utilities`
-let distDir = `${__dirname}/../dist`
+const moduleDir = `${__dirname}/../tests/webpack/browser/www/node_modules/@krobkrong/resources-utilities`;
+const distDir = `${__dirname}/../dist`;
 
-copyDir(distDir, `${moduleDir}/dist`)
-copy(`${__dirname}/../package.json`, `${moduleDir}/package.json`)
+copyDir(distDir, `${moduleDir}/dist`);
+copy(`${__dirname}/../package.json`, `${moduleDir}/package.json`);

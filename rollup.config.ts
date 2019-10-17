@@ -1,42 +1,40 @@
-/// <reference path="src/types/rollup.typescript.d.ts"/>
-
-import typescript from 'rollup-plugin-typescript';
-import commonjs from 'rollup-plugin-commonjs';
-import executable from 'rollup-plugin-executable';
-import replace from 'rollup-plugin-replace'
+import commonjs from "rollup-plugin-commonjs";
+import executable from "rollup-plugin-executable";
+import replace from "rollup-plugin-replace";
+import typescript from "rollup-plugin-typescript";
 
 export default [
    // command line
    {
-      input: 'src/cli/resutil.ts',
+      input: "src/cli/resutil.ts",
+      output: {
+         banner: "#!/usr/bin/env node",
+         file: "dist/cli/resutil.js",
+         format: "cjs",
+      },
       plugins: [
          replace({
-            delimiters: ['', ''],
-            '#!/usr/bin/env node': ''
+            "#!/usr/bin/env node": "",
+            "delimiters": ["", ""],
          }),
-         typescript({ "outDir": "dist/" }),
-         commonjs({ extensions: ['.js', '.ts'] }), // the ".ts" extension is required
+         typescript({ outDir: "dist/" }),
+         commonjs({ extensions: [".js", ".ts"] }), // the ".ts" extension is required
          executable(),
       ],
-      output: {
-         banner: '#!/usr/bin/env node',
-         format: "cjs",
-         file: "dist/cli/resutil.js"
-      }
    },
    // bundling all js file
    {
-      input: 'build/index.js',
+      input: "build/index.js",
+      output: {
+         file: "dist/index.js",
+         format: "cjs",
+         name: "ResourcesUtil",
+      },
       plugins: [
          commonjs({
-            extensions: ['.js'],
-            ignore: ["conditional-runtime-dependency"]
+            extensions: [".js"],
+            ignore: ["conditional-runtime-dependency"],
          }),
       ],
-      output: {
-         name: "ResourcesUtil",
-         format: "cjs",
-         file: "dist/index.js"
-      }
-   }
-]
+   },
+];

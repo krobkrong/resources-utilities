@@ -1,4 +1,4 @@
-import { LowercaseCharacterName, NameConvension, RawValue } from "@resmod/common/convension";
+import { lowercaseCharacterName, NameConvension, RawValue } from "@resmod/common/convension";
 import { AttributeParser } from "@resmod/vector/attr";
 import { IVectorParseOptions, IVectorParser } from "@resmod/vector/parser";
 import { SvgElementType, VectorType } from "@resmod/vector/types";
@@ -94,7 +94,7 @@ export class SvgModuleParser implements IVectorParser<ISvgMetadata> {
       let rootMeta: ISvgMetadata | undefined;
       let svgMeta: ISvgMetadata | undefined;
 
-      const tag = new RawValue(LowercaseCharacterName);
+      const tag = new RawValue(lowercaseCharacterName);
       let ch = 0;
       let skipUntil = 60;  // skip until <
       let commentSection = false;

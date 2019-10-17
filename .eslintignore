@@ -1,0 +1,6 @@
+node_modules/**
+dist/**
+coverage/**
+build/**
+tests/webpack/browser/www/node_modules/**
+tests/webpack/browser/www/dist/**

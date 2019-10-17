@@ -1,5 +1,5 @@
-import icons from './all-icons'
+import icons from "./all-icons";
 
-export function test() {
-    return Object.assign({}, icons)
+export function test () {
+  return Object.assign({}, icons);
 }

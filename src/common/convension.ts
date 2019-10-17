@@ -27,7 +27,7 @@ export type TransformCharacter = (ch: number, numeric?: boolean) => string;
  * @param ch ascii character code
  * @param numeric an optional state indicate whether or not to include numeric conversion
  */
-export function LowercaseCharacterName(ch: number, numeric?: boolean): string {
+export function lowercaseCharacterName(ch: number, numeric?: boolean): string {
    if (64 < ch && ch < 91) { // A-Z
       return String.fromCharCode(ch + 32);
    } else if ((96 < ch && ch < 123) || ch === 45) { // // a-z & - (hyphen)
@@ -43,7 +43,7 @@ export function LowercaseCharacterName(ch: number, numeric?: boolean): string {
  * @param ch ascii character code
  * @param numeric an optional state indicate whether or not to include numeric conversion
  */
-export function UppercaseCharacterName(ch: number, numeric?: boolean): string {
+export function uppercaseCharacterName(ch: number, numeric?: boolean): string {
    if ((64 < ch && ch < 91) || ch === 45) { // A-Z & - (hyphen)
       return String.fromCharCode(ch);
    } else if (96 < ch && ch < 123) { // a-z
@@ -251,16 +251,16 @@ export function transformFileNameConvention(name: string, convension: NameConven
    switch (convension) {
       case "Snake":
          replace = "_";
-         transformCharacter = UppercaseCharacterName;
+         transformCharacter = uppercaseCharacterName;
          break;
 
       case "snake":
          replace = "_";
-         transformCharacter = LowercaseCharacterName;
+         transformCharacter = lowercaseCharacterName;
          break;
 
       default:
-         transformCharacter = LowercaseCharacterName;
+         transformCharacter = lowercaseCharacterName;
          replace = "";
    }
 
@@ -273,14 +273,14 @@ export function transformFileNameConvention(name: string, convension: NameConven
             tranName += replace;
             if (replace.length === 0) {
                i++;
-               tranName += UppercaseCharacterName(name.charCodeAt(i), true);
+               tranName += uppercaseCharacterName(name.charCodeAt(i), true);
             }
             continue;
 
          case 95: // _ (underscore)
             if (replace.length === 0) {
                i++;
-               tranName += UppercaseCharacterName(name.charCodeAt(i), true);
+               tranName += uppercaseCharacterName(name.charCodeAt(i), true);
             } else {
                tranName += String.fromCharCode(ch);
             }
@@ -288,7 +288,7 @@ export function transformFileNameConvention(name: string, convension: NameConven
 
          default:
             if (replace.length === 0 && i === 0 && convension === "pascal") {
-               tranName += UppercaseCharacterName(ch, true);
+               tranName += uppercaseCharacterName(ch, true);
             } else {
                tranName += transformCharacter(ch, true);
             }

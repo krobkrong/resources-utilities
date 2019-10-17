@@ -1,5 +1,5 @@
-import merge from './style'
+import merge from "./style";
 
-export function test() {
-   return Object.assign({}, merge)
+export function test () {
+  return Object.assign({}, merge);
 }
