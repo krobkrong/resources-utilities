@@ -15,5 +15,5 @@ window.getCssEmbeddedElement = () => {
 };
 
 window.getCssDts = () => {
-  return { main: main, custom: custom, sample: sample };
+  return { main, custom, sample };
 };

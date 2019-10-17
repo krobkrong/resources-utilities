@@ -4,6 +4,7 @@
 [![coverage][cover]][cover-url]
 [![node-sass][node-sass-version]][node-sass-version]
 [![webpack][webpack-version]][webpack-version]
+[![Codacy Badge][codacy]][codacy-url]
 
 # resources-utilities
 A command line and library to generate typescript definition file from CSS, SASS, SCSS or SVG file.
@@ -66,3 +67,6 @@ let resource = StyleUtils.parse(raw, {
 [node-sass-version]: https://img.shields.io/github/package-json/dependency-version/krobkrong/resources-utilities/node-sass.svg
 
 [webpack-version]: https://img.shields.io/github/package-json/dependency-version/krobkrong/resources-utilities/webpack.svg
+
+[codacy]: https://api.codacy.com/project/badge/Grade/1295771aaf4344dc966981058f887820
+[codacy-url]: https://www.codacy.com/manual/cmidt-veasna/resources-utilities?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=krobkrong/resources-utilities&amp;utm_campaign=Badge_Grade

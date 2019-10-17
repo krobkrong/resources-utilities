@@ -70,7 +70,8 @@ describe("Test DTS CSS module", () => {
 
    describe("test merged:", () => {
 
-      const testCase = TestCaseHelper.ReadTestCase<ITestCaseInput, ITestCaseOutput>("tests/cli/styles/merge/case1.spec.yaml");
+      const testCase = TestCaseHelper
+         .ReadTestCase<ITestCaseInput, ITestCaseOutput>("tests/cli/styles/merge/case1.spec.yaml");
 
       testCase.input.testOptions.forEach((opt, optInd) => {
 
@@ -95,7 +96,8 @@ describe("Test DTS CSS module", () => {
             }
 
             try {
-               const result = execSync(`${tsNode} ${tsConfigPathOpt} --transpile-only src/cli/resutil.ts ${cmdOpt} ${opt.options.glob}`);
+               const result = execSync(`${tsNode} ${tsConfigPathOpt} --transpile-only src/cli/resutil.ts ` +
+                  `${cmdOpt} ${opt.options.glob}`);
                expect(result).toBeTruthy();
             } catch (err) {
                fail(err);

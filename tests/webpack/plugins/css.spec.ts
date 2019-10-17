@@ -51,7 +51,8 @@ describe("Test Style Plugin resource", () => {
             // tslint:disable-next-line: no-eval
             const result = eval(mod.source) as IResourceModule;
             expect(result).toBeTruthy();
-            const output = TestCaseHelper.ReadOutputExpected<IOutput>(`${__dirname}/test-data/style/${files[index]}.expect.yml`);
+            const output = TestCaseHelper
+               .ReadOutputExpected<IOutput>(`${__dirname}/test-data/style/${files[index]}.expect.yml`);
             const clone = Object.assign({}, result);
             delete clone.__description;
             expect(clone).toStrictEqual(output.module);
@@ -114,7 +115,8 @@ describe("Test Style Plugin resource", () => {
          // verify typed generated
          expect(existsSync(`${dtsDir}/${style}.${exts[i]}.d.ts`)).toStrictEqual(true);
          const output = TestCaseHelper.ReadOutputExpected<IOutput>(`${__dirname}/test-data/style/${style}.expect.yml`);
-         const dtsMod = output.dts.replace("{@module}", relative(process.cwd(), `${__dirname}/test-data/style/${style}.${exts[i]}`));
+         const dtsMod = output.dts.replace("{@module}",
+            relative(process.cwd(), `${__dirname}/test-data/style/${style}.${exts[i]}`));
          expect(readFileSync(`${dtsDir}/${style}.${exts[i]}.d.ts`).toString().trim()).toStrictEqual(dtsMod);
       });
    });
@@ -137,7 +139,8 @@ describe("Test Style Plugin resource", () => {
             expect(result).toBeTruthy();
             let extModule: IResourceModule = {};
             exts.forEach((_, i) => {
-               const oe = TestCaseHelper.ReadOutputExpected<IOutput>(`${__dirname}/test-data/style/${files[i]}.expect.yml`);
+               const oe = TestCaseHelper
+                  .ReadOutputExpected<IOutput>(`${__dirname}/test-data/style/${files[i]}.expect.yml`);
                extModule = Object.assign({}, extModule, oe.module);
             });
             const clone = Object.assign({}, result);

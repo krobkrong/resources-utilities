@@ -1,4 +1,4 @@
-import { AlphabetCharacterName, RawValue } from "@resmod/common/convension";
+import { alphabetCharacterName, RawValue } from "@resmod/common/convension";
 import { Selector } from "@resmod/common/selector";
 import { IVectorParseOptions } from "@resmod/vector/parser";
 import { IElementParsingMeta, IPrefix, ISvgMetadata, prefix } from "@resmod/vector/svg";
@@ -21,7 +21,7 @@ export class AttributeParser {
      * @param options vector parse options
      */
     constructor(options: IVectorParseOptions) {
-        this.attr = new RawValue(AlphabetCharacterName);
+        this.attr = new RawValue(alphabetCharacterName);
         this.val = new RawValue();
         this.transVal = new Selector(options.convensionCb ? undefined : options.convension, options.prefix);
         this.convensionCb = options.convensionCb;

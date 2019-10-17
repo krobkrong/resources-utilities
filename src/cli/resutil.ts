@@ -20,15 +20,19 @@ const argv = yargs.scriptName("resmod")
    // convension flag
    .string("n")
    .default("n", "camel")
-   .describe("n", "set the convension name to be use to generate variable name. By default it\'s use camel case and expected the resource to hyphen case.")
+   .describe("n", "set the convension name to be use to generate variable name. " +
+      "By default it\'s use camel case and expected the resource to hyphen case.")
    .choices("n", ["camel", "pascal", "snake", "Snake"])
    // wrap flag
    .boolean("w")
    .default("w", false)
-   .describe("w", "wrap use with merge option set to true. If wrap is false the generated file utilize id value in the resource file otherwise the file name will be used as variable name in definition file.")
+   .describe("w", "wrap use with merge option set to true. If wrap is false the " +
+      "generated file utilize id value in the resource file otherwise the file name " +
+      "will be used as variable name in definition file.")
    //
    .string("s")
-   .describe("s", "path to save the parsed data into a single file. Use together with merge true. Use . to store the generated file at the same location as original file.")
+   .describe("s", "path to save the parsed data into a single file. Use together " +
+      "with merge true. Use . to store the generated file at the same location as original file.")
    // general flag
    .help("help")
    .argv;
@@ -39,7 +43,7 @@ if (argv._.length === 0) {
 }
 
 // create alias object if any
-let alias: {[index: string]: string | undefined} | undefined;
+let alias: { [index: string]: string | undefined } | undefined;
 if (argv.mod && argv.path) {
    alias = {};
    alias[resolve(argv.path)] = argv.mod;

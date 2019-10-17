@@ -112,7 +112,8 @@ describe("test merged:", () => {
             }
 
             try {
-               const result = execSync(`${tsNode} ${tsConfigPathOpt} --transpile-only src/cli/resutil.ts ${cmdOpt} ${opt.options.glob}`);
+               const result = execSync(`${tsNode} ${tsConfigPathOpt} --transpile-only src/cli/resutil.ts ` +
+                  `${cmdOpt} ${opt.options.glob}`);
                expect(result).toBeTruthy();
             } catch (err) {
                fail(err);

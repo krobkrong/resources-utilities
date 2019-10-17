@@ -131,7 +131,8 @@ export class WebpackResourcePlugin {
 
    /** */
    private getTemporaryCacheDirectory(): string {
-      return this.options.tmp ? resolve(this.options.tmp) : `${realpathSync(tmpdir())}/${this.pkg}/resources-utilities/cache`;
+      return this.options.tmp ? resolve(this.options.tmp) :
+         `${realpathSync(tmpdir())}/${this.pkg}/resources-utilities/cache`;
    }
 
    /** */

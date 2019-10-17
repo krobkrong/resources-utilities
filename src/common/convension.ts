@@ -30,12 +30,11 @@ export type TransformCharacter = (ch: number, numeric?: boolean) => string;
 export function lowercaseCharacterName(ch: number, numeric?: boolean): string {
    if (64 < ch && ch < 91) { // A-Z
       return String.fromCharCode(ch + 32);
-   } else if ((96 < ch && ch < 123) || ch === 45) { // // a-z & - (hyphen)
-      return String.fromCharCode(ch);
-   } else if (numeric && 47 < ch && ch < 58) {
+   } else if ((96 < ch && ch < 123) || ch === 45 || (numeric && 47 < ch && ch < 58)) { // // a-z & - (hyphen)
       return String.fromCharCode(ch);
    }
-   throw new Error(` invalid resource name character expected characters of a-z, A-Z or hyphen (-) got ${String.fromCharCode(ch)}`);
+   throw new Error("invalid resource name character expected characters of a-z, A-Z or" +
+      `hyphen (-) got ${String.fromCharCode(ch)}`);
 }
 
 /**
@@ -44,14 +43,13 @@ export function lowercaseCharacterName(ch: number, numeric?: boolean): string {
  * @param numeric an optional state indicate whether or not to include numeric conversion
  */
 export function uppercaseCharacterName(ch: number, numeric?: boolean): string {
-   if ((64 < ch && ch < 91) || ch === 45) { // A-Z & - (hyphen)
+   if ((64 < ch && ch < 91) || ch === 45 || (numeric && 47 < ch && ch < 58)) { // A-Z & - (hyphen)
       return String.fromCharCode(ch);
    } else if (96 < ch && ch < 123) { // a-z
       return String.fromCharCode(ch - 32);
-   } else if (numeric && 47 < ch && ch < 58) {
-      return String.fromCharCode(ch);
    }
-   throw new Error(` invalid resource name character expected characters of a-z, A-Z or hyphen (-) got ${String.fromCharCode(ch)}`);
+   throw new Error(" invalid resource name character expected characters of a-z, A-Z or hyphen (-) got " +
+      String.fromCharCode(ch));
 }
 
 /**
@@ -59,8 +57,8 @@ export function uppercaseCharacterName(ch: number, numeric?: boolean): string {
  * character a to z for both lower and upper case including hyphen.
  * @param ch ascii character code
  */
-export function AlphabetCharacterName(ch: number): string {
-   if ((40 < ch && ch < 91) || (96 < ch && ch < 123) || ch === 45) { // A-Z
+export function alphabetCharacterName(ch: number): string {
+   if ((40 < ch && ch < 91) || (96 < ch && ch < 123)) { // A-Z
       return String.fromCharCode(ch);
    }
    throw new Error("invalid resource name character");
@@ -89,7 +87,6 @@ export function transformCssSelectorKey(convension: NameConvension, hasPrefix: b
                ch = 95;
                trace.index = 0;
                trace.seg++;
-
             }
             return String.fromCharCode(ch);
          };
@@ -118,10 +115,9 @@ export function transformCssSelectorKey(convension: NameConvension, hasPrefix: b
                   } else {
                      return "_";
                   }
-               }
-               if (trace.index > 0 && 64 < ch && ch < 91) {
+               } else if (64 < ch && ch < 91 && trace.index > 0) {
                   ch += 32;
-               } else if (trace.index === 0 && 96 < ch && ch < 123) {
+               } else if (96 < ch && ch < 123 && trace.index === 0) {
                   ch -= 32;
                }
                trace.index++;
@@ -140,11 +136,9 @@ export function transformCssSelectorKey(convension: NameConvension, hasPrefix: b
                } else {
                   return "_";
                }
-            }
-            if ((trace.index > 0 || (trace.index === 0 && trace.seg === 0))
-               && 64 < ch && ch < 91) {
+            } else if (64 < ch && ch < 91 && (trace.index > 0 || (trace.index === 0 && trace.seg === 0))) {
                ch += 32;
-            } else if (trace.index === 0 && trace.seg > 0 && 96 < ch && ch < 123) {
+            } else if (96 < ch && ch < 123 && trace.index === 0 && trace.seg > 0) {
                ch -= 32;
             }
             trace.index++;
@@ -246,8 +240,8 @@ export class RawValue {
  * @param convension name convension
  */
 export function transformFileNameConvention(name: string, convension: NameConvension): string {
-   let replace: string;
-   let transformCharacter: TransformCharacter;
+   let replace: string = "";
+   let transformCharacter = lowercaseCharacterName;
    switch (convension) {
       case "Snake":
          replace = "_";
@@ -256,12 +250,7 @@ export function transformFileNameConvention(name: string, convension: NameConven
 
       case "snake":
          replace = "_";
-         transformCharacter = lowercaseCharacterName;
          break;
-
-      default:
-         transformCharacter = lowercaseCharacterName;
-         replace = "";
    }
 
    let tranName = "";

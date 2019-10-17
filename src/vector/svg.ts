@@ -435,7 +435,8 @@ export function SerializeSvgResourceMetadata(rootRM: IResourceMetadata, opt: ISv
          }
 
          if (isSymbol) {
-            buf += `${indent}<symbol${eleid} width="${rootRM.width}" height="${rootRM.height}" viewBox="${rootRM.viewBox}">\n`;
+            buf += `${indent}<symbol${eleid} width="${rootRM.width}" height="${rootRM.height}" `;
+            buf += `viewBox="${rootRM.viewBox}">\n`;
             buf += `${eleBuf}`;
             buf += `${indent}</symbol>\n`;
          } else {

@@ -1,6 +1,10 @@
 import { ICommandLineOptions } from "@resmod/cli/dts";
 import { mkdirSyncRecursive } from "@resmod/common/file";
-import { IResourceModule, SerializeResourceModule, SerializeResourceModuleAsVariable } from "@resmod/webpack/loader/types";
+import {
+   IResourceModule,
+   SerializeResourceModule,
+   SerializeResourceModuleAsVariable,
+} from "@resmod/webpack/loader/types";
 import { existsSync, writeFileSync } from "fs";
 import { basename, dirname, join, relative, resolve } from "path";
 

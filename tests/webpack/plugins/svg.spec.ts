@@ -51,7 +51,8 @@ describe("Test SVG Plugin resource", () => {
                 expect(result.rawContent).toBeTruthy();
                 expect(existsSync(`${__dirname}/svg-data/icons/${filename}.d.ts`));
                 const relatitvePath = relative(mod.name as string, process.cwd());
-                expect(readFileSync(`${__dirname}/svg-data/icons/${filename}.d.ts`)).toStrictEqual(output.dts.replace("{@module}", relatitvePath));
+                expect(readFileSync(`${__dirname}/svg-data/icons/${filename}.d.ts`))
+                    .toStrictEqual(output.dts.replace("{@module}", relatitvePath));
             }
         });
     });
@@ -73,8 +74,10 @@ describe("Test SVG Plugin resource", () => {
             const index = name.indexOf(".");
             const filename = name.substring(0, index);
             expect(existsSync(`${dtsDir}/${name}.d.ts`)).toStrictEqual(true);
-            const output = TestCaseHelper.ReadOutputExpected<IOutput>(`${__dirname}/svg-data/icons/${filename}.expect.yml`);
-            const dtsMod = output.dts.replace("{@module}", relative(process.cwd(), `${__dirname}/svg-data/icons/${filename}.svg`));
+            const output = TestCaseHelper
+                .ReadOutputExpected<IOutput>(`${__dirname}/svg-data/icons/${filename}.expect.yml`);
+            const dtsMod = output.dts.replace("{@module}", relative(process.cwd(),
+                `${__dirname}/svg-data/icons/${filename}.svg`));
             expect(readFileSync(`${dtsDir}/${filename}.svg.d.ts`).toString().trim()).toStrictEqual(dtsMod);
         });
     });
@@ -94,7 +97,8 @@ describe("Test SVG Plugin resource", () => {
                 // tslint:disable-next-line: no-eval
                 const result = eval(mod.source) as IResourceModule;
                 expect(result).toBeTruthy();
-                const output = TestCaseHelper.ReadOutputExpected<IOutput>(`${__dirname}/svg-data/all-icons/module.expect.yml`);
+                const output = TestCaseHelper
+                    .ReadOutputExpected<IOutput>(`${__dirname}/svg-data/all-icons/module.expect.yml`);
                 const clone = Object.assign({}, result);
                 delete clone.__description;
                 expect(clone).toStrictEqual(output.module);
@@ -103,7 +107,7 @@ describe("Test SVG Plugin resource", () => {
                 expect(result.__description!.files.length).toEqual(4);
 
                 expect(result.__description!.rawContent).toBeTruthy();
-                const svg = new SvgModuleParser({includeMeta: true}).parse(result.__description!.rawContent);
+                const svg = new SvgModuleParser({ includeMeta: true }).parse(result.__description!.rawContent);
                 expect(svg!.metadata.elementType).toStrictEqual(SvgElementType.SVG);
                 expect(svg!.metadata).toBeTruthy();
                 expect(svg!.metadata.childs).toBeTruthy();
