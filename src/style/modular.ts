@@ -140,7 +140,9 @@ export class CssModuleParser implements IStyleParser<IResourceMetadata> {
                if (this.options.cssClass) {
                   selectorType = CssSelectorType.CLASS;
                   name.reset();
-                  name.appendRaw(46);
+                  if (!this.options.excludeSelectorSymbol) {
+                     name.appendRaw(46);
+                  }
                }
                continue;
 
@@ -148,7 +150,9 @@ export class CssModuleParser implements IStyleParser<IResourceMetadata> {
                if (this.options.cssId) {
                   selectorType = CssSelectorType.ID;
                   name.reset();
-                  name.appendRaw(35);
+                  if (!this.options.excludeSelectorSymbol) {
+                     name.appendRaw(35);
+                  }
                }
                continue;
 

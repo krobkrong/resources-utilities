@@ -41,8 +41,9 @@ describe("Test Style Plugin resource", () => {
       Utils.removeDir(`${__dirname}/test-data/css-tmp`);
    });
 
-   const verifyResult = (stats: webpack.Stats) => {
+   const verifyResult = (stats: webpack.Stats, isExcludeSelector: boolean = false) => {
       expect(stats.toJson().modules).toBeTruthy();
+      const ex = isExcludeSelector ? ".ex." : ".";
       stats.toJson().modules!.forEach((mod: any) => {
          const name = mod.name as string;
          const fext = extname(name.substr(0, name.lastIndexOf("."))) as string;
@@ -52,7 +53,7 @@ describe("Test Style Plugin resource", () => {
             const result = eval(mod.source) as IResourceModule;
             expect(result).toBeTruthy();
             const output = TestCaseHelper
-               .ReadOutputExpected<IOutput>(`${__dirname}/test-data/style/${files[index]}.expect.yml`);
+               .ReadOutputExpected<IOutput>(`${__dirname}/test-data/style/${files[index]}.expect${ex}yml`);
             const clone = Object.assign({}, result);
             delete clone.__description;
             expect(clone).toStrictEqual(output.module);
@@ -71,7 +72,7 @@ describe("Test Style Plugin resource", () => {
       files.forEach((style, i) => {
          // verify typed generated
          expect(existsSync(`${dtsDir}/${style}.${exts[i]}.d.ts`)).toStrictEqual(true);
-         const output = TestCaseHelper.ReadOutputExpected<IOutput>(`${dtsDir}/${style}.expect.yml`);
+         const output = TestCaseHelper.ReadOutputExpected<IOutput>(`${dtsDir}/${style}.expect${ex}yml`);
          const dtsMod = output.dts.replace("{@module}", relative(process.cwd(), `${__dirname}/test-data/style/${style}.${exts[i]}`));
          expect(readFileSync(`${dtsDir}/${style}.${exts[i]}.d.ts`).toString().trim()).toStrictEqual(dtsMod);
 
@@ -100,6 +101,17 @@ describe("Test Style Plugin resource", () => {
 
       const stats = await WebpackUtil.run(fileEntry, moduleRules, [plugin], [plugin]);
       verifyResult(stats);
+   });
+
+   test("Exclude selector", async () => {
+
+      const plugin = PluginFactory.getPlugins({
+         excludeSelectorSymbol: true,
+         glob: `${__dirname}/test-data/style/*.{css,scss,sass}`,
+      });
+
+      const stats = await WebpackUtil.run(fileEntry, moduleRules, [plugin], [plugin]);
+      verifyResult(stats, true);
    });
 
    test("Output Directory", async () => {
